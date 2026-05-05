@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="theme-color" content="#00C853"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<title>WasteGo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+:root{
+  --g:#00C853;--gd:#009624;--gdim:rgba(0,200,83,0.13);
+  --bk:#090D09;--dk:#101410;--card:#141C14;--card2:#192019;
+  --bd:#1D2B1D;--mid:#527052;--mut:#2E3E2E;
+  --wh:#EEF7EE;--gold:#FFD600;--red:#FF4D4D;--blue:#4D8FFF;
+  --nav:64px;--bot:70px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bk);color:var(--wh);display:flex;flex-direction:column;max-width:430px;margin:0 auto;box-shadow:0 0 100px rgba(0,0,0,.6);}
+
+/* UTILS */
+.hidden{display:none!important;}
+.btn{width:100%;padding:14px;border-radius:12px;border:none;font-size:.88rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-g{background:var(--g);color:var(--bk);}
+.btn-g:hover{background:#00E660;}
+.btn-g:active{transform:scale(.98);}
+.btn-g:disabled{background:var(--mut);color:var(--mid);cursor:not-allowed;}
+.btn-sec{background:var(--card2);color:var(--wh);border:1px solid var(--bd);}
+.btn-red{background:rgba(255,77,77,.1);color:var(--red);border:1px solid rgba(255,77,77,.2);}
+.btn-blue{background:rgba(77,143,255,.1);color:#90CAF9;border:1px solid rgba(77,143,255,.25);}
+.input{width:100%;background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:12px 15px;color:var(--wh);font-size:.88rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s;}
+.input:focus{border-color:var(--g);}
+.input::placeholder{color:var(--mut);}
+select.input{cursor:pointer;appearance:none;}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-bottom:13px;}
+.lbl{font-size:.67rem;letter-spacing:.13em;text-transform:uppercase;color:var(--mid);margin-bottom:7px;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:.63rem;font-weight:700;letter-spacing:.06em;}
+.bg{background:var(--gdim);color:var(--g);}
+.bb{background:rgba(77,143,255,.12);color:var(--blue);}
+.br{background:rgba(255,77,77,.1);color:var(--red);}
+.by{background:rgba(255,214,0,.1);color:var(--gold);}
+.row{display:flex;justify-content:space-between;align-items:center;}
+.gap10{display:flex;gap:10px;}
+.spinner{display:inline-block;width:17px;height:17px;border:2px solid rgba(0,0,0,.25);border-top-color:var(--bk);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+
+/* AUTH */
+#auth{position:fixed;inset:0;z-index:999;background:var(--bk);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px 40px;overflow-y:auto;transition:opacity .4s;}
+#auth.out{opacity:0;pointer-events:none;}
+.a-logo{font-family:'Fraunces',serif;font-size:2.3rem;font-weight:700;color:var(--wh);display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.a-logo-ico{width:50px;height:50px;background:var(--g);border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;}
+.a-logo span{color:var(--g);}
+.a-sub{font-size:.83rem;color:var(--mid);margin-bottom:30px;}
+.a-tabs{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden;width:100%;margin-bottom:22px;}
+.a-tab{flex:1;padding:11px;font-size:.81rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--mid);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.a-tab.on{background:var(--g);color:var(--bk);}
+.a-form{width:100%;display:flex;flex-direction:column;gap:11px;animation:fadeUp .4s ease both;}
+.rp{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ro{border:2px solid var(--bd);border-radius:12px;padding:16px 12px;text-align:center;cursor:pointer;transition:all .25s;background:transparent;}
+.ro.on{border-color:var(--g);background:var(--gdim);}
+.ro[data-role="rider"].on{border-color:var(--blue);background:rgba(77,143,255,.08);}
+.ro .ri{font-size:2rem;display:block;margin-bottom:6px;}
+.ro .rn{font-size:.84rem;font-weight:700;color:var(--wh);}
+.ro .rd{font-size:.68rem;color:var(--mid);margin-top:3px;}
+.ro.on .rn{color:var(--g);}
+.ro[data-role="rider"].on .rn{color:#90CAF9;}
+.a-note{font-size:.7rem;color:var(--mid);text-align:center;margin-top:3px;}
+
+/* TOP NAV */
+#topnav{height:var(--nav);background:var(--dk);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;z-index:50;position:relative;}
+.logo{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:var(--wh);display:flex;align-items:center;gap:8px;}
+.logo-i{width:27px;height:27px;background:var(--g);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.82rem;}
+.logo span{color:var(--g);}
+.tnr{display:flex;align-items:center;gap:9px;}
+.rbadge{font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;border-radius:100px;}
+.rbadge.customer{background:var(--gdim);color:var(--g);border:1px solid rgba(0,200,83,.25);}
+.rbadge.rider{background:rgba(77,143,255,.12);color:var(--blue);border:1px solid rgba(77,143,255,.25);}
+.rbadge.admin{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.2);}
+.ava{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.88rem;cursor:pointer;}
+
+/* SCREENS */
+#main{flex:1;overflow:hidden;position:relative;}
+.scr{position:absolute;inset:0;overflow-y:auto;padding:15px 15px calc(var(--bot)+15px);display:none;-webkit-overflow-scrolling:touch;}
+.scr.on{display:block;}
+.scr::-webkit-scrollbar{width:3px;}
+.scr::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px;}
+.ph{margin-bottom:18px;}
+.ph-t{font-family:'Fraunces',serif;font-size:1.55rem;font-weight:700;color:var(--wh);margin-bottom:2px;}
+.ph-s{font-size:.78rem;color:var(--mid);}
+
+/* LIVE MAP */
+#map,#map2,#map-rider{border-radius:14px;border:1px solid var(--bd);overflow:hidden;position:relative;z-index:1;}
+#map{height:220px;margin-bottom:13px;}
+#map2{height:220px;margin-bottom:13px;}
+#map-rider{height:195px;margin-bottom:13px;}
+.leaflet-container{background:#0A0F0A!important;}
+.leaflet-tile-pane{filter:brightness(.5) saturate(.5) hue-rotate(55deg);}
+.leaflet-control-attribution{display:none!important;}
+.leaflet-control-zoom a{background:var(--card)!important;color:var(--wh)!important;border-color:var(--bd)!important;}
+.map-bar{position:absolute;top:9px;left:9px;right:9px;z-index:2;background:rgba(9,13,9,.82);backdrop-filter:blur(12px);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;display:flex;align-items:center;gap:9px;pointer-events:none;}
+.mbd{width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0;}
+.mbd.y{background:var(--gold);}
+.mbd.b{background:var(--blue);}
+.mbt{font-size:.76rem;font-weight:600;color:var(--wh);}
+.mbs{font-size:.67rem;color:var(--mid);margin-left:auto;}
+
+/* SIZE PICKER */
+.sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:4px;}
+.sz{background:var(--card2);border:1.5px solid var(--bd);border-radius:11px;padding:11px 5px;text-align:center;cursor:pointer;transition:all .2s;}
+.sz.on{border-color:var(--g);background:var(--gdim);}
+.sz .si{font-size:1.35rem;display:block;margin-bottom:4px;}
+.sz .sn{font-size:.66rem;color:var(--mid);font-weight:600;}
+.sz .sp{font-size:.58rem;color:var(--mut);margin-top:2px;}
+.sz.on .sn{color:var(--g);}
+
+/* PRICE BOX */
+.pbox{background:var(--card2);border-radius:11px;padding:13px 15px;margin-bottom:13px;}
+.pr{display:flex;justify-content:space-between;font-size:.8rem;padding:3px 0;}
+.pr span:first-child{color:var(--mid);}
+.pt{display:flex;justify-content:space-between;margin-top:7px;padding-top:7px;border-top:1px solid var(--bd);}
+.pt span:first-child{font-weight:700;color:var(--wh);font-size:.88rem;}
+.pt span:last-child{font-weight:800;color:var(--g);font-size:1.05rem;}
+
+/* TRACKING */
+.tcard{background:linear-gradient(135deg,rgba(0,200,83,.07),rgba(0,200,83,.02));border:1px solid rgba(0,200,83,.2);border-radius:16px;padding:17px;margin-bottom:13px;}
+.ttop{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
+.tdot{width:9px;height:9px;border-radius:50%;background:var(--g);flex-shrink:0;animation:pulse 1.4s ease infinite;}
+.tlbl{font-weight:700;font-size:.88rem;color:var(--wh);}
+.teta{margin-left:auto;font-size:.75rem;color:var(--g);font-weight:700;background:var(--gdim);padding:3px 9px;border-radius:100px;}
+.rrow{display:flex;align-items:center;gap:11px;}
+.rava{width:42px;height:42px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+.rnm{font-weight:700;font-size:.88rem;color:var(--wh);}
+.rstars{color:var(--gold);font-size:.7rem;}
+.rmeta{font-size:.7rem;color:var(--mid);}
+
+/* HISTORY */
+.hi{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--bd);}
+.hi:last-child{border-bottom:none;}
+.hiico{width:36px;height:36px;border-radius:9px;background:var(--gdim);border:1px solid rgba(0,200,83,.13);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.hit{font-size:.85rem;font-weight:600;color:var(--wh);margin-bottom:3px;}
+.him{font-size:.7rem;color:var(--mid);}
+.hia{font-weight:800;color:var(--g);font-size:.87rem;text-align:right;white-space:nowrap;}
+
+/* RIDER */
+.obar{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
+.obar.on{border-color:rgba(0,200,83,.35);background:rgba(0,200,83,.05);}
+.ob-l h3{font-size:.97rem;font-weight:700;color:var(--wh);}
+.ob-l p{font-size:.73rem;color:var(--mid);margin-top:2px;}
+.tog{width:50px;height:27px;background:var(--mut);border-radius:100px;position:relative;cursor:pointer;transition:background .3s;border:none;flex-shrink:0;}
+.tog.on{background:var(--g);}
+.togth{position:absolute;top:3px;left:3px;width:21px;height:21px;background:var(--wh);border-radius:50%;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.tog.on .togth{transform:translateX(23px);}
+
+.egrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:13px;}
+.ebox{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center;}
+.en{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--g);display:block;}
+.el{font-size:.6rem;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+
+.jalert{background:linear-gradient(135deg,rgba(0,200,83,.1),rgba(0,200,83,.03));border:1.5px solid rgba(0,200,83,.3);border-radius:16px;padding:17px;margin-bottom:13px;animation:fadeUp .3s ease;}
+.jah{font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--g);margin-bottom:11px;display:flex;align-items:center;gap:6px;}
+.jap{width:7px;height:7px;border-radius:50%;background:var(--g);animation:pulse 1s ease infinite;}
+.jaaddr{font-size:.93rem;font-weight:700;color:var(--wh);margin-bottom:3px;}
+.jameta{font-size:.76rem;color:var(--mid);margin-bottom:9px;}
+.japrice{font-family:'Fraunces',serif;font-size:1.9rem;font-weight:700;color:var(--g);margin-bottom:2px;}
+.jashare{font-size:.72rem;color:var(--mid);}
+.jabtns{display:flex;gap:9px;margin-top:13px;}
+.jaacc{flex:1;background:var(--g);color:var(--bk);border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;font-size:.85rem;font-family:'Plus Jakarta Sans',sans-serif;}
+.jadec{background:var(--card2);color:var(--mid);border:1px solid var(--bd);padding:12px 14px;border-radius:10px;cursor:pointer;font-size:.85rem;font-family:'Plus Jakarta Sans',sans-serif;}
+
+.ajcard{background:rgba(77,143,255,.08);border:1.5px solid rgba(77,143,255,.25);border-radius:16px;padding:17px;margin-bottom:13px;}
+
+/* ADMIN */
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px;}
+.astat{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;}
+.an{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:var(--g);}
+.al{font-size:.67rem;color:var(--mid);margin-top:3px;text-transform:uppercase;letter-spacing:.07em;}
+.crow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd);gap:13px;}
+.crow:last-child{border-bottom:none;}
+.clw h4{font-size:.85rem;font-weight:600;color:var(--wh);}
+.clw p{font-size:.7rem;color:var(--mid);}
+.cinp{width:88px;background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:7px 10px;color:var(--wh);font-size:.85rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;text-align:right;}
+.cinp:focus{border-color:var(--g);}
+.ttbl{width:100%;border-collapse:collapse;font-size:.76rem;}
+.ttbl th{text-align:left;padding:6px 0;color:var(--mid);font-size:.63rem;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bd);}
+.ttbl td{padding:8px 0;color:var(--wh);border-bottom:1px solid rgba(29,43,29,.45);}
+.ttbl tr:last-child td{border-bottom:none;}
+
+/* PROFILE */
+.phdr{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--bd);border-radius:16px;padding:20px 17px;display:flex;align-items:center;gap:13px;margin-bottom:13px;}
+.pava{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;}
+.pava.c{background:var(--g);}
+.pava.r{background:var(--blue);}
+.pava.a{background:var(--gold);}
+.pname{font-weight:800;font-size:1.02rem;color:var(--wh);}
+.prole{font-size:.7rem;margin-top:2px;}
+.prole.c{color:var(--g);}
+.prole.r{color:#90CAF9;}
+.prole.a{color:var(--gold);}
+.pemail{font-size:.76rem;color:var(--mid);margin-top:3px;}
+.srow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd);cursor:pointer;}
+.srow:last-child{border-bottom:none;}
+.sico{width:33px;height:33px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:.92rem;flex-shrink:0;}
+.slbl{font-size:.85rem;font-weight:500;color:var(--wh);}
+.sarr{margin-left:auto;color:var(--mid);}
+
+/* FARE NOTICE */
+.fnotice{background:rgba(255,214,0,.05);border:1.5px solid rgba(255,214,0,.22);border-radius:14px;padding:17px;margin-bottom:13px;}
+
+/* MODALS */
+.mbg{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;}
+.mbg.show{display:flex;}
+.msh{background:var(--dk);border:1px solid var(--bd);border-radius:22px 22px 0 0;padding:24px 18px 38px;width:100%;max-width:430px;}
+.shdl{width:33px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 20px;}
+.sht{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;color:var(--wh);margin-bottom:16px;}
+.mo{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--bd);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s;margin-bottom:9px;}
+.mo.sel{border-color:var(--g);background:var(--gdim);}
+.mo-ico{font-size:1.35rem;}
+.mo-nm{font-weight:700;font-size:.85rem;color:var(--wh);}
+.mo-num{font-size:.7rem;color:var(--mid);}
+.mo-chk{margin-left:auto;color:var(--g);opacity:0;font-size:.95rem;}
+.mo.sel .mo-chk{opacity:1;}
+
+.fmbg{position:fixed;inset:0;z-index:450;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:18px;}
+.fmbg.show{display:flex;}
+.fmsh{background:var(--dk);border:1px solid var(--bd);border-radius:22px;padding:24px 18px;width:100%;max-width:390px;}
+.uz{border:2px dashed var(--bd);border-radius:12px;padding:26px;text-align:center;cursor:pointer;transition:all .2s;margin:13px 0;}
+.uz:hover{border-color:var(--g);}
+.uz-i{font-size:2.3rem;display:block;margin-bottom:7px;}
+.uz p{font-size:.78rem;color:var(--mid);}
+
+/* BOTTOM NAV */
+#botnav{height:var(--bot);background:var(--dk);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:6px;}
+.ntab{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 13px;border-radius:10px;transition:all .2s;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;}
+.ntab .ni{font-size:1.2rem;line-height:1;}
+.ntab .nl{font-size:.58rem;color:var(--mid);font-weight:600;letter-spacing:.04em;}
+.ntab.on .nl{color:var(--g);}
+.ntab.on .ni{filter:drop-shadow(0 0 5px var(--g));}
+.ntab[data-role="rider"].on .nl{color:#90CAF9;}
+.ntab[data-role="rider"].on .ni{filter:drop-shadow(0 0 5px var(--blue));}
+
+/* OFFLINE + INSTALL */
+#offline{background:var(--gold);color:var(--bk);text-align:center;padding:7px;font-size:.71rem;font-weight:700;letter-spacing:.05em;flex-shrink:0;}
+#istrip{position:fixed;bottom:calc(var(--bot)+9px);left:9px;right:9px;z-index:300;background:var(--card2);border:1px solid rgba(0,200,83,.28);border-radius:14px;padding:13px 15px;display:none;align-items:center;gap:11px;box-shadow:0 8px 28px rgba(0,0,0,.4);}
+#istrip.show{display:flex;}
+.ist h4{font-size:.83rem;font-weight:700;color:var(--wh);}
+.ist p{font-size:.68rem;color:var(--mid);margin-top:2px;}
+.isb{background:var(--g);color:var(--bk);border:none;padding:8px 13px;border-radius:8px;font-weight:800;font-size:.73rem;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;}
+.isx{background:none;border:none;color:var(--mid);cursor:pointer;font-size:1rem;padding:0;}
+</style>
+</head>
+  
+
+<body>
+
+<!-- AUTH -->
+<div id="auth">
+  <a href="index.html.html" style="color: white; font-size: 20px; text-decoration: none;">Home</a>
+  <div class="a-logo"><div class="a-logo-ico">♻</div>Waste<span>Go</span></div>
+  <p class="a-sub">On-demand waste collection · Ghana</p>
+  <div class="a-tabs" style="width:100%;margin-bottom:20px;">
+    <button class="a-tab on" onclick="aTab('login')">Sign In</button>
+    <button class="a-tab" onclick="aTab('register')">Register</button>
+  </div>
+  <!-- LOGIN -->
+  <div id="frm-login" class="a-form">
+    <input class="input" id="l-email" type="email" placeholder="Email address"/>
+    <input class="input" id="l-pass" type="password" placeholder="Password"/>
+    <button class="btn btn-g" id="l-btn" onclick="doLogin()">Sign In</button>
+    <button class="btn btn-sec" onclick="adminLogin()" style="padding:12px;font-size:.82rem;">🔐 Admin Login</button>
+    <p class="a-note">Demo: any email + password · role remembered per account</p>
+  </div>
+  <!-- REGISTER -->
+  <div id="frm-reg" class="a-form" style="display:none;">
+    <p class="lbl" style="text-align:center;margin-bottom:0;">Select your account type</p>
+    <div class="rp">
+      <div class="ro on" data-role="customer" onclick="pickRole(this)"><span class="ri">🏠</span><span class="rn">Customer</span><span class="rd">Request pickups</span></div>
+      <div class="ro" data-role="rider" onclick="pickRole(this)"><span class="ri">🛺</span><span class="rn">Rider</span><span class="rd">Earn by collecting</span></div>
+    </div>
+    <input class="input" id="r-name" type="text" placeholder="Full name"/>
+    <input class="input" id="r-email" type="email" placeholder="Email address"/>
+    <input class="input" id="r-phone" type="tel" placeholder="Phone / MoMo number"/>
+    <input class="input" id="r-pass" type="password" placeholder="Create password"/>
+    <div id="r-extra" style="display:none;flex-direction:column;gap:10px;">
+      <input class="input" type="text" placeholder="Tricycle / Vehicle ID"/>
+      <select class="input"><option value="">Select region</option><option>Greater Accra</option><option>Ashanti</option><option>Central</option><option>Western</option><option>Northern</option></select>
+    </div>
+    <button class="btn btn-g" id="r-btn" onclick="doRegister()">Create Account</button>
+    <p class="a-note">⚠️ Role cannot be changed after registration</p>
+  </div>
+</div>
+
+<!-- OFFLINE -->
+<div id="offline" class="hidden">📶 Offline — cached data only</div>
+
+<!-- TOP NAV -->
+<div id="topnav">
+  <div class="logo"><div class="logo-i">♻</div>Waste<span>Go</span></div>
+  <div class="tnr">
+    <span class="rbadge customer" id="rbadge">Customer</span>
+    <div class="ava" onclick="goTab('s-profile')">👤</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- ══ CUSTOMER HOME ══ -->
+  <div class="scr" id="s-home">
+    <div class="ph"><p class="ph-s" id="greet">Good day 👋</p><h1 class="ph-t">Request Pickup</h1></div>
+    <div style="position:relative;margin-bottom:13px;">
+      <div id="map"></div>
+      <div class="map-bar"><div class="mbd" id="mdot"></div><span class="mbt" id="mtxt">Locating you...</span><span class="mbs" id="msub"></span></div>
+    </div>
+    <div class="card" style="padding:12px 14px;margin-bottom:11px;">
+      <p class="lbl">Pickup Location</p>
+      <input class="input" id="addr" type="text" placeholder="Enter your address..." style="margin-top:5px;"/>
+    </div>
+    <div class="card">
+      <p class="lbl">Load Size</p>
+      <div class="sizes">
+        <div class="sz" onclick="pickSz(this,'Small',15)"><span class="si">🗑️</span><span class="sn">Small</span><span class="sp">GH₵15+</span></div>
+        <div class="sz on" onclick="pickSz(this,'Medium',28)"><span class="si">📦</span><span class="sn">Medium</span><span class="sp">GH₵28+</span></div>
+        <div class="sz" onclick="pickSz(this,'Large',45)"><span class="si">🏗️</span><span class="sn">Large</span><span class="sp">GH₵45+</span></div>
+        <div class="sz" onclick="pickSz(this,'Bulk',80)"><span class="si">🚛</span><span class="sn">Bulk</span><span class="sp">GH₵80+</span></div>
+      </div>
+      <div style="margin-top:12px;"><p class="lbl">Special Waste</p>
+        <select class="input" onchange="pickSur(this.value)">
+          <option value="0">None</option>
+          <option value="10">Hazardous Waste (+GH₵10)</option>
+          <option value="8">E-Waste / Electronics (+GH₵8)</option>
+          <option value="5">Construction Debris (+GH₵5)</option>
+        </select>
+      </div>
+    </div>
+    <div class="pbox">
+      <div class="pr"><span>Base fee</span><span id="p-base">GH₵ 28.00</span></div>
+      <div class="pr"><span>Distance (2.4 km)</span><span>GH₵ 7.20</span></div>
+      <div class="pr"><span>Surcharge</span><span id="p-sur">GH₵ 0.00</span></div>
+      <div class="pt"><span>Total Estimate</span><span id="p-tot">GH₵ 35.20</span></div>
+    </div>
+    <button class="btn btn-g" onclick="reqPickup()">♻ Request Pickup Now</button>
+  </div>
+
+  <!-- ══ CUSTOMER TRACKING ══ -->
+  <div class="scr" id="s-track">
+    <div class="ph"><h1 class="ph-t">Live Tracking</h1><p class="ph-s" id="tsub">Finding nearest rider...</p></div>
+    <div style="position:relative;margin-bottom:13px;">
+      <div id="map2"></div>
+      <div class="map-bar"><div class="mbd" id="m2dot"></div><span class="mbt" id="m2txt">Rider en route</span><span class="mbs" id="m2eta">ETA 4 min</span></div>
+    </div>
+    <div class="tcard">
+      <div class="ttop"><div class="tdot"></div><span class="tlbl" id="tlbl">Matching...</span><span class="teta" id="teta">~4 min</span></div>
+      <div class="rrow"><div class="rava">🛺</div><div><p class="rnm">Kwame Asante</p><p class="rstars">★★★★★</p><p class="rmeta">4.9 · 312 pickups · #KW-042</p></div></div>
+    </div>
+    <div class="fnotice hidden" id="fnotice">
+      <div class="row" style="margin-bottom:9px;"><span style="font-weight:700;color:var(--gold);">⚠ Fare Adjustment</span><span class="badge by">Review</span></div>
+      <p style="font-size:.8rem;color:rgba(238,247,238,.5);margin-bottom:12px;">Rider submitted load photo. New fare: <strong style="color:var(--gold);">GH₵ 52.00</strong></p>
+      <div style="background:var(--card2);border-radius:8px;padding:18px;text-align:center;margin-bottom:12px;"><span style="font-size:1.9rem;">📸</span><p style="font-size:.7rem;color:var(--mid);margin-top:5px;">Photo from rider</p></div>
+      <div class="gap10"><button class="btn btn-g" style="flex:1;" onclick="approveFare()">✓ Approve GH₵ 52</button><button class="btn btn-sec" style="flex:0 0 auto;" onclick="declineFare()">Decline</button></div>
+    </div>
+    <button class="btn btn-sec" style="margin-bottom:9px;" onclick="openPay()">💳 Pay with MoMo</button>
+    <button class="btn btn-red" onclick="cancelPickup()">Cancel Pickup</button>
+  </div>
+
+  <!-- ══ CUSTOMER HISTORY ══ -->
+  <div class="scr" id="s-history">
+    <div class="ph"><h1 class="ph-t">Pickup History</h1><p class="ph-s">Your recent collections</p></div>
+    <div class="card">
+      <div class="hi"><div class="hiico">♻</div><div style="flex:1;"><p class="hit">East Legon Pickup</p><p class="him">Medium · May 2, 2025 · Kwame A.</p></div><div><p class="hia">GH₵35.20</p><span class="badge bg" style="font-size:.58rem;">Done</span></div></div>
+      <div class="hi"><div class="hiico">♻</div><div style="flex:1;"><p class="hit">Adabraka Pickup</p><p class="him">Large · Apr 28 · Yaw B.</p></div><div><p class="hia">GH₵56.40</p><span class="badge bg" style="font-size:.58rem;">Done</span></div></div>
+      <div class="hi"><div class="hiico">♻</div><div style="flex:1;"><p class="hit">Osu Pickup</p><p class="him">Small · Apr 22 · Ama K.</p></div><div><p class="hia">GH₵22.80</p><span class="badge bg" style="font-size:.58rem;">Done</span></div></div>
+      <div class="hi"><div class="hiico">♻</div><div style="flex:1;"><p class="hit">Tema Bulk</p><p class="him">Bulk · Apr 15 · Kofi M.</p></div><div><p class="hia">GH₵95.00</p><span class="badge br" style="font-size:.58rem;">Cancelled</span></div></div>
+    </div>
+    <div class="card" style="display:flex;justify-content:space-around;text-align:center;">
+      <div><p class="lbl">Total Spent</p><p style="font-family:'Fraunces',serif;font-size:1.45rem;font-weight:700;color:var(--g);">GH₵114.40</p></div>
+      <div style="width:1px;background:var(--bd);"></div>
+      <div><p class="lbl">Pickups</p><p style="font-family:'Fraunces',serif;font-size:1.45rem;font-weight:700;color:var(--wh);">3</p></div>
+    </div>
+  </div>
+
+  <!-- ══ RIDER DASHBOARD ══ -->
+  <div class="scr" id="s-rider">
+    <div class="ph"><p class="ph-s" id="rgreet">Good day 👋</p><h1 class="ph-t" style="color:#90CAF9;">Rider Dashboard</h1></div>
+    <div class="obar" id="obar">
+      <div class="ob-l"><h3 id="otxt">You are Offline</h3><p>Toggle to receive jobs</p></div>
+      <button class="tog" id="tog" onclick="toggleOnline()"><div class="togth"></div></button>
+    </div>
+    <div class="egrid">
+      <div class="ebox"><span class="en">GH₵84</span><span class="el">Today</span></div>
+      <div class="ebox"><span class="en">GH₵479</span><span class="el">This Week</span></div>
+      <div class="ebox"><span class="en">GH₵1,820</span><span class="el">Month</span></div>
+    </div>
+    <div style="position:relative;margin-bottom:13px;">
+      <div id="map-rider"></div>
+      <div class="map-bar"><div class="mbd b" id="rmdot"></div><span class="mbt" id="rmtxt">Your location</span><span class="mbs" id="rmsub">Go online to see jobs</span></div>
+    </div>
+    <div class="jalert hidden" id="jalert">
+      <div class="jah"><div class="jap"></div>New Pickup Request</div>
+      <p class="jaaddr">📍 123 Accra Road, East Legon</p>
+      <p class="jameta">Medium Load · 2.4 km away · No surcharge</p>
+      <p class="japrice">GH₵ 35.20 <span class="jashare">(your 75%: GH₵26.40)</span></p>
+      <div class="jabtns"><button class="jaacc" onclick="acceptJob()">✓ Accept</button><button class="jadec" onclick="declineJob()">✗ Skip</button></div>
+    </div>
+    <div class="ajcard hidden" id="ajcard">
+      <div class="row" style="margin-bottom:13px;"><span style="font-weight:700;color:#90CAF9;">Active Pickup</span><span class="badge bb">In Progress</span></div>
+      <p style="font-size:.84rem;color:var(--mid);margin-bottom:3px;">📍 123 Accra Road, East Legon</p>
+      <p style="font-size:.84rem;color:var(--mid);margin-bottom:13px;">Medium · GH₵35.20 → Your share: GH₵26.40</p>
+      <button class="btn btn-blue" style="margin-bottom:9px;" onclick="openFare()">📷 Request Fare Adjustment</button>
+      <button class="btn btn-g" onclick="completeJob()">✓ Mark Collected</button>
+    </div>
+    <div class="card">
+      <p class="lbl" style="margin-bottom:11px;">Recent Jobs</p>
+      <div class="hi"><div class="hiico" style="background:rgba(77,143,255,.1);border-color:rgba(77,143,255,.13);">🛺</div><div style="flex:1;"><p class="hit">East Legon → Dump A</p><p class="him">Medium · Today 9:24 AM</p></div><p class="hia" style="color:#90CAF9;">GH₵26.40</p></div>
+      <div class="hi"><div class="hiico" style="background:rgba(77,143,255,.1);border-color:rgba(77,143,255,.13);">🛺</div><div style="flex:1;"><p class="hit">Osu → Dump B</p><p class="him">Small · Today 7:12 AM</p></div><p class="hia" style="color:#90CAF9;">GH₵16.80</p></div>
+      <div class="hi" style="border-bottom:none;"><div class="hiico" style="background:rgba(77,143,255,.1);border-color:rgba(77,143,255,.13);">🛺</div><div style="flex:1;"><p class="hit">Adabraka → Dump A</p><p class="him">Large · Yesterday</p></div><p class="hia" style="color:#90CAF9;">GH₵40.80</p></div>
+    </div>
+  </div>
+
+  <!-- ══ RIDER EARNINGS ══ -->
+  <div class="scr" id="s-earn">
+    <div class="ph"><h1 class="ph-t" style="color:#90CAF9;">My Earnings</h1><p class="ph-s">75% of every fare is yours</p></div>
+    <div class="card">
+      <p class="lbl" style="margin-bottom:14px;">This Week</p>
+      <div style="display:flex;flex-direction:column;gap:11px;">
+        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Monday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 84</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:66%;background:linear-gradient(90deg,var(--blue),#90CAF9);border-radius:4px;"></div></div></div>
+        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Tuesday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 62</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:49%;background:linear-gradient(90deg,var(--blue),#90CAF9);border-radius:4px;"></div></div></div>
+        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Wednesday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 110</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:87%;background:linear-gradient(90deg,var(--blue),#90CAF9);border-radius:4px;"></div></div></div>
+        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Thursday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 95</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:75%;background:linear-gradient(90deg,var(--blue),#90CAF9);border-radius:4px;"></div></div></div>
+        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Friday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 128</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:100%;background:linear-gradient(90deg,var(--blue),#90CAF9);border-radius:4px;"></div></div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:18px;padding-top:14px;border-top:1px solid var(--bd);"><span style="font-size:.8rem;color:var(--mid);">Week Total</span><span style="font-family:'Fraunces',serif;font-size:1.55rem;font-weight:700;color:#90CAF9;">GH₵ 479</span></div>
+    </div>
+    <div class="card" style="display:flex;justify-content:space-around;text-align:center;">
+      <div><p class="lbl">Month</p><p style="font-family:'Fraunces',serif;font-size:1.35rem;font-weight:700;color:#90CAF9;">GH₵1,820</p></div>
+      <div style="width:1px;background:var(--bd);"></div>
+      <div><p class="lbl">Jobs</p><p style="font-family:'Fraunces',serif;font-size:1.35rem;font-weight:700;color:var(--wh);">67</p></div>
+      <div style="width:1px;background:var(--bd);"></div>
+      <div><p class="lbl">Commission</p><p style="font-family:'Fraunces',serif;font-size:1.35rem;font-weight:700;color:var(--gold);">75%</p></div>
+    </div>
+  </div>
+
+  <!-- ══ ADMIN ══ -->
+  <div class="scr" id="s-admin">
+    <div class="ph"><h1 class="ph-t" style="color:var(--gold);">Admin Panel</h1><p class="ph-s">Platform control</p></div>
+    <div class="agrid">
+      <div class="astat"><p class="an">284</p><p class="al">Total Pickups</p></div>
+      <div class="astat"><p class="an">47</p><p class="al">Active Riders</p></div>
+      <div class="astat"><p class="an" style="font-size:1.25rem;">GH₵8,240</p><p class="al">Revenue</p></div>
+      <div class="astat"><p class="an" style="font-size:1.25rem;">GH₵24,720</p><p class="al">Rider Payouts</p></div>
+    </div>
+    <div class="card">
+      <p class="lbl" style="margin-bottom:13px;">💰 Pricing Config</p>
+      <div class="crow"><div class="clw"><h4>Base Fee (Small)</h4><p>Flat minimum</p></div><input class="cinp" type="number" value="15" id="cfg-b"/></div>
+      <div class="crow"><div class="clw"><h4>Distance Rate</h4><p>GH₵ / km</p></div><input class="cinp" type="number" value="3.00" step="0.5" id="cfg-d"/></div>
+      <div class="crow"><div class="clw"><h4>Commission %</h4><p>Platform keeps</p></div><input class="cinp" type="number" value="25" id="cfg-c"/></div>
+      <div class="crow"><div class="clw"><h4>Surge Multiplier</h4><p>Peak factor</p></div><input class="cinp" type="number" value="1.0" step="0.1" id="cfg-s"/></div>
+      <button class="btn btn-g" style="margin-top:13px;" onclick="saveCfg()">💾 Save Config</button>
+    </div>
+    <div class="card">
+      <p class="lbl" style="margin-bottom:13px;">📋 Recent Trips</p>
+      <table class="ttbl"><thead><tr><th>Customer</th><th>Rider</th><th>Size</th><th>Fare</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Ama K.</td><td>Kwame A.</td><td>Med</td><td>GH₵35</td><td><span class="badge bg">Done</span></td></tr>
+        <tr><td>Yaw B.</td><td>Kofi M.</td><td>Large</td><td>GH₵56</td><td><span class="badge bg">Done</span></td></tr>
+        <tr><td>Akua L.</td><td>Yaw B.</td><td>Small</td><td>GH₵22</td><td><span class="badge bb">Active</span></td></tr>
+        <tr><td>Kojo P.</td><td>—</td><td>Bulk</td><td>GH₵95</td><td><span class="badge by">Pending</span></td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <!-- ══ PROFILE ══ -->
+  <div class="scr" id="s-profile">
+    <div class="ph"><h1 class="ph-t">Profile</h1></div>
+    <div class="phdr">
+      <div class="pava c" id="pava">🏠</div>
+      <div><p class="pname" id="pname">User</p><p class="prole c" id="prole">Customer</p><p class="pemail" id="pemail">user@example.com</p></div>
+    </div>
+    <div class="card">
+      <p class="lbl">Mobile Money</p>
+      <div class="row" style="margin-top:8px;margin-bottom:11px;"><div><p style="font-weight:700;color:var(--wh);">MTN MoMo</p><p style="font-size:.73rem;color:var(--mid);">+233 24 000 1234</p></div><span class="badge bg">Linked</span></div>
+      <button class="btn btn-sec" style="padding:10px;font-size:.8rem;">+ Add Another Network</button>
+    </div>
+    <div class="card">
+      <p class="lbl" style="margin-bottom:7px;">Settings</p>
+      <div class="srow" onclick="alert('Notification settings coming soon')"><div class="sico">🔔</div><span class="slbl">Notifications</span><span class="sarr">›</span></div>
+      <div class="srow" onclick="alert('Privacy settings coming soon')"><div class="sico">🔒</div><span class="slbl">Privacy & Security</span><span class="sarr">›</span></div>
+      <div class="srow" onclick="showInstall()"><div class="sico">📲</div><span class="slbl">Install App</span><span class="sarr">›</span></div>
+      <div class="srow" onclick="alert('Help & Support coming soon')"><div class="sico">💬</div><span class="slbl">Help & Support</span><span class="sarr">›</span></div>
+    </div>
+    <button class="btn btn-red" onclick="logout()">Sign Out</button>
+  </div>
+
+</div><!-- /main -->
+
+<!-- BOTTOM NAV -->
+<div id="botnav"></div>
+
+<!-- PAY MODAL -->
+<div class="mbg" id="paym">
+  <div class="msh">
+    <div class="shdl"></div>
+    <p class="sht">Pay with MoMo</p>
+    <p style="font-size:.8rem;color:var(--mid);margin-bottom:16px;">Total: <strong style="color:var(--g);">GH₵ 35.20</strong></p>
+    <div class="mo sel" onclick="selM(this)"><span class="mo-ico">📱</span><div><p class="mo-nm">MTN MoMo</p><p class="mo-num">+233 24 000 1234</p></div><span class="mo-chk">✓</span></div>
+    <div class="mo" onclick="selM(this)"><span class="mo-ico">📱</span><div><p class="mo-nm">Vodafone Cash</p><p class="mo-num">+233 20 000 5678</p></div><span class="mo-chk">✓</span></div>
+    <div class="mo" onclick="selM(this)"><span class="mo-ico">📱</span><div><p class="mo-nm">AirtelTigo Money</p><p class="mo-num">+233 26 000 9999</p></div><span class="mo-chk">✓</span></div>
+    <button class="btn btn-g" style="margin-top:14px;" id="paybtn" onclick="doPay()">Confirm Payment</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closePay()">Cancel</button>
+  </div>
+</div>
+
+<!-- FARE MODAL -->
+<div class="fmbg" id="farem">
+  <div class="fmsh">
+    <div class="shdl"></div>
+    <p class="sht" style="text-align:center;">Fare Adjustment</p>
+    <p style="font-size:.8rem;color:var(--mid);text-align:center;margin-top:4px;">Upload load photo and set the adjusted fare. Customer must approve.</p>
+    <div class="uz" onclick="fakeUp()"><span class="uz-i" id="uzi">📷</span><p id="uzt">Tap to upload photo</p></div>
+    <div style="margin-bottom:13px;"><p class="lbl">Adjusted Fare (GH₵)</p><input class="input" type="number" value="52" id="nfare" style="margin-top:5px;"/></div>
+    <button class="btn btn-g" onclick="submitFare()">Send to Customer</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closeFare()">Cancel</button>
+  </div>
+</div>
+
+<!-- INSTALL STRIP -->
+<div id="istrip">
+  <div class="ist"><h4>📲 Install WasteGo</h4><p>Add to home screen</p></div>
+  <button class="isb" onclick="installApp()">Install</button>
+  <button class="isx" onclick="document.getElementById('istrip').classList.remove('show')">✕</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ═══════════════════ STATE ═══════════════════
+const ST={user:null,regRole:'customer',size:'Medium',base:28,sur:0,online:false,maps:{},userLL:null,riderMs:[],trackInt:null,moveInt:null};
+const ACCRA=[5.6037,-0.1870];
+const TILE='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+// NAV CONFIGS — strictly by role
+const NAVS={
+  customer:[
+    {id:'home',ico:'🏠',lbl:'Home',scr:'s-home'},
+    {id:'hist',ico:'📋',lbl:'History',scr:'s-history'},
+    {id:'prof',ico:'👤',lbl:'Profile',scr:'s-profile'},
+  ],
+  rider:[
+    {id:'rdash',ico:'🛺',lbl:'Dashboard',scr:'s-rider',r:'rider'},
+    {id:'earn',ico:'💵',lbl:'Earnings',scr:'s-earn',r:'rider'},
+    {id:'rprof',ico:'👤',lbl:'Profile',scr:'s-profile',r:'rider'},
+  ],
+  admin:[
+    {id:'adm',ico:'⚙️',lbl:'Admin',scr:'s-admin'},
+    {id:'aprof',ico:'👤',lbl:'Profile',scr:'s-profile'},
+  ],
+};
+
+// ═══════════════════ AUTH ═══════════════════
+function aTab(t){
+  document.querySelectorAll('.a-tab').forEach((b,i)=>b.classList.toggle('on',(i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('frm-login').style.display=t==='login'?'flex':'none';
+  document.getElementById('frm-reg').style.display=t==='register'?'flex':'none';
+}
+function pickRole(el){
+  document.querySelectorAll('.ro').forEach(o=>o.classList.remove('on'));
+  el.classList.add('on');
+  ST.regRole=el.dataset.role;
+  document.getElementById('r-extra').style.display=ST.regRole==='rider'?'flex':'none';
+}
+function doLogin(){
+  const btn=document.getElementById('l-btn');
+  btn.innerHTML='<div class="spinner"></div>';btn.disabled=true;
+  const em=document.getElementById('l-email').value||'demo@wastego.gh';
+  setTimeout(()=>{
+    let acc=null;
+    try{acc=JSON.parse(localStorage.getItem('wg::'+em));}catch(e){}
+    ST.user=acc||{name:'John Mensah',email:em,role:'customer'};
+    enterApp();
+  },1300);
+}
+function adminLogin(){ST.user={name:'Admin',email:'admin@wastego.gh',role:'admin'};enterApp();}
+function doRegister(){
+  const btn=document.getElementById('r-btn');
+  const name=document.getElementById('r-name').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  if(!name){alert('Enter your name');return;}
+  if(!email){alert('Enter your email');return;}
+  btn.innerHTML='<div class="spinner"></div>';btn.disabled=true;
+  setTimeout(()=>{
+    ST.user={name,email,role:ST.regRole};
+    try{localStorage.setItem('wg::'+email,JSON.stringify(ST.user));}catch(e){}
+    enterApp();
+  },1500);
+}
+function enterApp(){
+  const a=document.getElementById('auth');
+  a.classList.add('out');
+  setTimeout(()=>a.style.display='none',400);
+  buildNav();
+  updateProfile();
+  setGreet();
+  // Init map for default screen
+  setTimeout(()=>{
+    if(ST.user.role==='customer')initMap('map',true);
+    else if(ST.user.role==='rider')initRiderMap();
+  },300);
+  setTimeout(showInstall,7000);
+}
+function logout(){ST.user=null;clearAllInt();location.reload();}
+
+// ═══════════════════ NAV ═══════════════════
+function buildNav(){
+  const role=ST.user.role;
+  const tabs=NAVS[role]||NAVS.customer;
+  const bn=document.getElementById('botnav');bn.innerHTML='';
+  tabs.forEach((t,i)=>{
+    const b=document.createElement('button');
+    b.className='ntab'+(i===0?' on':'');
+    if(t.r)b.dataset.role=t.r;
+    b.innerHTML=`<span class="ni">${t.ico}</span><span class="nl">${t.lbl}</span>`;
+    b.onclick=()=>goTab(t.scr,b);
+    bn.appendChild(b);
+    if(i===0)goTab(t.scr,b,true);
+  });
+  const rb=document.getElementById('rbadge');
+  rb.textContent=role.charAt(0).toUpperCase()+role.slice(1);
+  rb.className='rbadge '+role;
+}
+function goTab(sid,btn,silent=false){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  const sc=document.getElementById(sid);if(sc)sc.classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(!silent){
+    if(sid==='s-track')initMap('map2',false);
+    if(sid==='s-rider')initRiderMap();
+  }
+}
+
+// ═══════════════════ LIVE MAP ═══════════════════
+function makeLeaflet(id,center,zoom){
+  if(ST.maps[id])return ST.maps[id];
+  const m=L.map(id,{zoomControl:true,attributionControl:false,scrollWheelZoom:false,dragging:true});
+  L.tileLayer(TILE,{maxZoom:18}).addTo(m);
+  m.setView(center,zoom);
+  ST.maps[id]=m;
+  return m;
+}
+function rIco(){
+  return L.divIcon({className:'',html:`<div style="width:26px;height:26px;background:#00C853;border-radius:50%;border:2px solid #090D09;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 8px rgba(0,200,83,.5);">🛺</div>`,iconSize:[26,26],iconAnchor:[13,13]});
+}
+function uIco(){
+  return L.divIcon({className:'',html:`<div style="width:20px;height:20px;background:#4D8FFF;border-radius:50%;border:2.5px solid #090D09;box-shadow:0 0 10px rgba(77,143,255,.6);"></div>`,iconSize:[20,20],iconAnchor:[10,10]});
+}
+function spawnRiders(map,center){
+  ST.riderMs.forEach(m=>m.remove());ST.riderMs=[];
+  for(let i=0;i<4;i++){
+    const lat=center[0]+(Math.random()-.5)*.025;
+    const lng=center[1]+(Math.random()-.5)*.025;
+    const m=L.marker([lat,lng],{icon:rIco()}).addTo(map);
+    m.bindPopup(`🛺 Rider ${i+1} · Online`);
+    ST.riderMs.push(m);
+  }
+  clearInterval(ST.moveInt);
+  ST.moveInt=setInterval(()=>{
+    ST.riderMs.forEach(rm=>{
+      const ll=rm.getLatLng();
+      rm.setLatLng([ll.lat+(Math.random()-.5)*.0006,ll.lng+(Math.random()-.5)*.0006]);
+    });
+  },2000);
+}
+function initMap(divId,tryGeo){
+  if(ST.maps[divId])return;
+  const center=ST.userLL||ACCRA;
+  const m=makeLeaflet(divId,center,14);
+  L.circle(center,{radius:180,color:'#00C853',fillColor:'#00C853',fillOpacity:.07,weight:1}).addTo(m);
+  spawnRiders(m,center);
+  if(tryGeo&&navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const ll=[pos.coords.latitude,pos.coords.longitude];
+      ST.userLL=ll;
+      m.setView(ll,15);
+      if(ST.uMark)ST.uMark.remove();
+      ST.uMark=L.marker(ll,{icon:uIco()}).addTo(m).bindPopup('📍 Your location');
+      spawnRiders(m,ll);
+      document.getElementById('mdot').classList.remove('y');
+      document.getElementById('mtxt').textContent='Location found';
+      document.getElementById('msub').textContent=`${ll[0].toFixed(4)}, ${ll[1].toFixed(4)}`;
+      document.getElementById('addr').value='Your current location';
+    },()=>{
+      document.getElementById('mdot').classList.add('y');
+      document.getElementById('mtxt').textContent='Using Accra (GPS denied)';
+    });
+  }
+}
+function initMap(divId,tryGeo){
+  if(ST.maps[divId])return;
+  const center=ST.userLL||ACCRA;
+  const m=makeLeaflet(divId,center,14);
+  L.circle(center,{radius:180,color:'#00C853',fillColor:'#00C853',fillOpacity:.07,weight:1}).addTo(m);
+  spawnRiders(m,center);
+  if(tryGeo&&navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const ll=[pos.coords.latitude,pos.coords.longitude];
+      ST.userLL=ll;
+      m.setView(ll,15);
+      ST.uMark=L.marker(ll,{icon:uIco()}).addTo(m).bindPopup('📍 Your location');
+      spawnRiders(m,ll);
+      const dotEl=divId==='map'?'mdot':'m2dot';
+      const txtEl=divId==='map'?'mtxt':'m2txt';
+      const subEl=divId==='map'?'msub':'m2eta';
+      document.getElementById(dotEl).classList.remove('y');
+      document.getElementById(txtEl).textContent='Location found';
+      if(divId==='map'){document.getElementById('addr').value='Your current location';document.getElementById(subEl).textContent=`${ll[0].toFixed(4)}, ${ll[1].toFixed(4)}`;}
+    },()=>{
+      const dotEl=divId==='map'?'mdot':'m2dot';
+      document.getElementById(dotEl).classList.add('y');
+    });
+  }
+}
+function initTrackMap(){
+  if(ST.maps['map2'])return;
+  const center=ST.userLL||ACCRA;
+  const m=makeLeaflet('map2',center,15);
+  L.marker(center,{icon:uIco()}).addTo(m).bindPopup('📍 Pickup point');
+  let rLat=center[0]+0.009,rLng=center[1]+0.007;
+  const rm=L.marker([rLat,rLng],{icon:rIco()}).addTo(m).bindPopup('🛺 Kwame en route');
+  clearInterval(ST.trackInt);
+  ST.trackInt=setInterval(()=>{
+    const ll=rm.getLatLng();
+    const dLat=(center[0]-ll.lat)*.09;
+    const dLng=(center[1]-ll.lng)*.09;
+    rm.setLatLng([ll.lat+dLat+(Math.random()-.5)*.0002,ll.lng+dLng+(Math.random()-.5)*.0002]);
+  },1500);
+}
+function initRiderMap(){
+  if(ST.maps['map-rider'])return;
+  const center=ST.userLL||ACCRA;
+  const m=makeLeaflet('map-rider',center,14);
+  L.marker(center,{icon:rIco()}).addTo(m).bindPopup('📍 Your position');
+  spawnRiders(m,center);
+}
+function clearAllInt(){clearInterval(ST.trackInt);clearInterval(ST.moveInt);}
+
+// ═══════════════════ PRICING ═══════════════════
+function pickSz(el,name,price){
+  document.querySelectorAll('.sz').forEach(s=>s.classList.remove('on'));
+  el.classList.add('on');ST.size=name;ST.base=price;calcP();
+}
+function pickSur(v){ST.sur=parseInt(v)||0;calcP();}
+function calcP(){
+  const dist=7.20,tot=ST.base+dist+ST.sur;
+  document.getElementById('p-base').textContent=`GH₵ ${ST.base}.00`;
+  document.getElementById('p-sur').textContent=`GH₵ ${ST.sur}.00`;
+  document.getElementById('p-tot').textContent=`GH₵ ${tot.toFixed(2)}`;
+}
+
+// ═══════════════════ PICKUP FLOW ═══════════════════
+function reqPickup(){
+  const tabs=document.querySelectorAll('.ntab');
+  goTab('s-track',tabs[0]);
+  tabs.forEach(t=>t.classList.remove('on'));
+  document.getElementById('tsub').textContent='Finding nearest rider...';
+  document.getElementById('tlbl').textContent='Searching...';
+  initTrackMap();
+  setTimeout(()=>{
+    document.getElementById('tlbl').textContent='Rider matched!';
+    document.getElementById('tsub').textContent='Kwame Asante is on the way';
+    document.getElementById('teta').textContent='~4 min';
+    document.getElementById('m2txt').textContent='Rider en route';
+    setTimeout(()=>document.getElementById('fnotice').classList.remove('hidden'),7000);
+  },2200);
+}
+function cancelPickup(){clearAllInt();goTab('s-home',document.querySelectorAll('.ntab')[0]);document.getElementById('fnotice').classList.add('hidden');}
+function approveFare(){document.getElementById('fnotice').classList.add('hidden');alert('✓ Fare approved — GH₵ 52.00 confirmed!');}
+function declineFare(){document.getElementById('fnotice').classList.add('hidden');}
+
+// ═══════════════════ PAYMENT ═══════════════════
+function openPay(){document.getElementById('paym').classList.add('show');}
+function closePay(){document.getElementById('paym').classList.remove('show');}
+function selM(el){document.querySelectorAll('.mo').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+function doPay(){
+  const b=document.getElementById('paybtn');b.innerHTML='<div class="spinner"></div> Processing...';b.disabled=true;
+  setTimeout(()=>{closePay();b.innerHTML='Confirm Payment';b.disabled=false;clearAllInt();
+    alert('✅ Payment successful!\nGH₵ 35.20 via MTN MoMo.\nThank you for using WasteGo 🌿');
+    goTab('s-history',document.querySelectorAll('.ntab')[1]);},2200);
+}
+
+// ═══════════════════ RIDER ═══════════════════
+function toggleOnline(){
+  ST.online=!ST.online;
+  const tog=document.getElementById('tog'),bar=document.getElementById('obar');
+  tog.classList.toggle('on',ST.online);bar.classList.toggle('on',ST.online);
+  document.getElementById('otxt').textContent=ST.online?'You are Online':'You are Offline';
+  document.getElementById('rmsub').textContent=ST.online?'Accepting nearby jobs':'Go online to see jobs';
+  document.getElementById('rmtxt').textContent=ST.online?'Online · Receiving jobs':'Your location';
+  if(ST.online)setTimeout(()=>document.getElementById('jalert').classList.remove('hidden'),3500);
+  else document.getElementById('jalert').classList.add('hidden');
+}
+function acceptJob(){document.getElementById('jalert').classList.add('hidden');document.getElementById('ajcard').classList.remove('hidden');}
+function declineJob(){document.getElementById('jalert').classList.add('hidden');}
+function openFare(){document.getElementById('farem').classList.add('show');}
+function closeFare(){document.getElementById('farem').classList.remove('show');}
+function fakeUp(){document.getElementById('uzi').textContent='✅';document.getElementById('uzt').textContent='Photo uploaded!';}
+function submitFare(){
+  closeFare();
+  document.getElementById('uzi').textContent='📷';document.getElementById('uzt').textContent='Tap to upload photo';
+  alert('📸 Adjustment request sent!\nAwaiting approval for GH₵'+(document.getElementById('nfare').value||52));
+}
+function completeJob(){document.getElementById('ajcard').classList.add('hidden');alert('✅ Job complete!\n+GH₵ 26.40 added to earnings.');}
+
+// ═══════════════════ ADMIN ═══════════════════
+function saveCfg(){alert(`✅ Config saved!\n\nBase: GH₵${document.getElementById('cfg-b').value}\nDist: GH₵${document.getElementById('cfg-d').value}/km\nCommission: ${document.getElementById('cfg-c').value}%\n\nLive immediately.`);}
+
+// ═══════════════════ PROFILE ═══════════════════
+function updateProfile(){
+  if(!ST.user)return;
+  document.getElementById('pname').textContent=ST.user.name;
+  document.getElementById('pemail').textContent=ST.user.email;
+  const r=ST.user.role,rc=r==='admin'?'a':r.charAt(0);
+  const rl=document.getElementById('prole');
+  rl.textContent=r.charAt(0).toUpperCase()+r.slice(1);
+  rl.className='prole '+rc;
+  const av=document.getElementById('pava');
+  av.className='pava '+rc;
+  av.textContent=r==='customer'?'🏠':r==='rider'?'🛺':'⚙️';
+}
+function setGreet(){
+  const h=new Date().getHours(),g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const n=ST.user?.name?.split(' ')[0]||'';
+  if(document.getElementById('greet'))document.getElementById('greet').textContent=g+' 👋';
+  if(document.getElementById('rgreet'))document.getElementById('rgreet').textContent=`${g}, ${n} 👋`;
+}
+function goTab(sid){
+  // override for profile avatar click
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  const sc=document.getElementById(sid);if(sc)sc.classList.add('on');
+}
+
+// ═══════════════════ INSTALL ═══════════════════
+function showInstall(){document.getElementById('istrip').classList.add('show');}
+function installApp(){document.getElementById('istrip').classList.remove('show');alert('📲 Install WasteGo:\n\niOS: Share → "Add to Home Screen"\nAndroid: Menu (⋮) → "Add to Home Screen"');}
+
+// ═══════════════════ OFFLINE ═══════════════════
+window.addEventListener('offline',()=>document.getElementById('offline').classList.remove('hidden'));
+window.addEventListener('online',()=>document.getElementById('offline').classList.add('hidden'));
+
+// backdrop close
+document.getElementById('paym').addEventListener('click',e=>{if(e.target===e.currentTarget)closePay();});
+document.getElementById('farem').addEventListener('click',e=>{if(e.target===e.currentTarget)closeFare();});
+
+// Re-declare goTab properly (overriding the premature one above)
+function goTab(sid,btn,silent=false){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
+  const sc=document.getElementById(sid);if(sc)sc.classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(!silent){
+    if(sid==='s-track')initTrackMap();
+    if(sid==='s-rider')initRiderMap();
+  }
+}
+</script>
+</body>
+</html>
