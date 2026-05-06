@@ -6,408 +6,428 @@
 <meta name="theme-color" content="#00C853"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <title>WasteGo</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 :root{
-  --g:#00C853;--gd:#009624;--gdim:rgba(0,200,83,.13);
-  --bk:#080C08;--dk:#0E130E;--card:#131813;--card2:#172217;
-  --bd:#1C2B1C;--mid:#4E6E4E;--mut:#283828;
-  --wh:#EDF7ED;--gold:#FFD600;--red:#FF4444;--blue:#4488FF;
+  --g:#00C853;--gdim:rgba(0,200,83,.12);--gdim2:rgba(0,200,83,.06);
+  --bk:#07090A;--dk:#0D1210;--card:#121A13;--card2:#18231A;
+  --bd:#1A2B1C;--mid:#4A6A4C;--mut:#253325;
+  --wh:#EBF5EC;--gold:#FFD600;--red:#FF4444;--blue:#3D8BFF;
+  --orange:#FF8C00;
   --nav:64px;--bot:70px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bk);color:var(--wh);display:flex;flex-direction:column;max-width:430px;margin:0 auto;box-shadow:0 0 80px rgba(0,0,0,.7);}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bk);color:var(--wh);display:flex;flex-direction:column;max-width:430px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,.8);}
 
-/* UTILS */
+/* ── UTILITIES ── */
 .hidden{display:none!important;}
-.btn{width:100%;padding:14px;border-radius:12px;border:none;font-size:.88rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn{width:100%;padding:14px;border-radius:12px;border:none;font-size:.87rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn:active{transform:scale(.97);}
 .btn-g{background:var(--g);color:var(--bk);}
-.btn-g:hover{background:#00E060;}
-.btn-g:active{transform:scale(.98);}
-.btn-g:disabled{background:var(--mut);color:var(--mid);cursor:not-allowed;}
+.btn-g:hover{background:#00DA5A;}
+.btn-g:disabled{background:var(--mut);color:var(--mid);cursor:not-allowed;transform:none;}
 .btn-sec{background:var(--card2);color:var(--wh);border:1px solid var(--bd);}
-.btn-red{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.22);}
-.btn-blue{background:rgba(68,136,255,.1);color:#90C4FF;border:1px solid rgba(68,136,255,.25);}
-.btn-gold{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.25);}
-.btn-sm{padding:8px 13px;font-size:.74rem;width:auto;border-radius:8px;}
-.input{width:100%;background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:12px 15px;color:var(--wh);font-size:.88rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s;}
+.btn-red{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.2);}
+.btn-blue{background:rgba(61,139,255,.1);color:#7DB8FF;border:1px solid rgba(61,139,255,.22);}
+.btn-gold{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.22);}
+.btn-orange{background:rgba(255,140,0,.12);color:var(--orange);border:1px solid rgba(255,140,0,.25);}
+.btn-sm{padding:8px 12px;font-size:.73rem;width:auto;border-radius:8px;}
+.input{width:100%;background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:12px 15px;color:var(--wh);font-size:.87rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s;}
 .input:focus{border-color:var(--g);}
 .input::placeholder{color:var(--mut);}
 .input.err{border-color:var(--red)!important;}
 select.input{cursor:pointer;appearance:none;}
-textarea.input{resize:vertical;min-height:90px;}
+textarea.input{resize:vertical;min-height:80px;}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-bottom:13px;}
-.lbl{font-size:.67rem;letter-spacing:.13em;text-transform:uppercase;color:var(--mid);margin-bottom:7px;}
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:.63rem;font-weight:700;letter-spacing:.06em;}
+.lbl{font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:7px;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:100px;font-size:.62rem;font-weight:700;letter-spacing:.05em;}
 .bg{background:var(--gdim);color:var(--g);}
-.bb{background:rgba(68,136,255,.12);color:var(--blue);}
+.bb{background:rgba(61,139,255,.12);color:var(--blue);}
 .br{background:rgba(255,68,68,.1);color:var(--red);}
 .by{background:rgba(255,214,0,.1);color:var(--gold);}
+.bo{background:rgba(255,140,0,.1);color:var(--orange);}
 .row{display:flex;justify-content:space-between;align-items:center;}
 .gap8{display:flex;gap:8px;}
-.spinner{display:inline-block;width:17px;height:17px;border:2px solid rgba(0,0,0,.25);border-top-color:var(--bk);border-radius:50%;animation:spin .7s linear infinite;}
+.spinner{display:inline-block;width:17px;height:17px;border:2px solid rgba(0,0,0,.2);border-top-color:var(--bk);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.5)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes ripple{to{transform:scale(2.5);opacity:0}}
 
-/* FIELD WRAP */
+/* FIELD WRAPPER */
 .fw{display:flex;flex-direction:column;gap:5px;margin-bottom:11px;}
-.fl{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);padding-left:2px;}
-.fe{font-size:.72rem;color:var(--red);padding-left:2px;display:none;}
+.fl{font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);padding-left:2px;}
+.fe{font-size:.71rem;color:var(--red);padding-left:2px;display:none;}
 .fe.on{display:block;animation:fadeUp .2s ease;}
 
-/* AUTH */
+/* ══════════════════════════════
+   AUTH SCREEN
+══════════════════════════════ */
 #auth{position:fixed;inset:0;z-index:999;background:var(--bk);display:flex;flex-direction:column;align-items:center;overflow-y:auto;transition:opacity .35s;}
 #auth.out{opacity:0;pointer-events:none;}
-.ah{width:100%;height:215px;background:linear-gradient(160deg,#091409,#0C1E0C,#091409);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:22px;flex-shrink:0;}
-.ah-bg{position:absolute;inset:0;background:radial-gradient(ellipse 65% 75% at 50% 10%,rgba(0,200,83,.18),transparent 70%);}
-.ah-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,83,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,83,.05) 1px,transparent 1px);background-size:26px 26px;}
-.ah-logo{width:76px;height:76px;border-radius:21px;background:linear-gradient(145deg,#00C853,#007B32);display:flex;align-items:center;justify-content:center;position:relative;z-index:2;margin-bottom:12px;box-shadow:0 10px 36px rgba(0,200,83,.38),0 0 0 1px rgba(0,200,83,.22);}
-.ah-logo svg{width:48px;height:48px;}
-.ah-name{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;color:var(--wh);position:relative;z-index:2;}
-.ah-name span{color:var(--g);}
-.ah-sub{font-size:.72rem;color:rgba(78,110,78,.9);position:relative;z-index:2;margin-top:4px;letter-spacing:.05em;}
-.ab{width:100%;padding:22px 22px 44px;display:flex;flex-direction:column;align-items:center;}
+.ah{width:100%;height:210px;background:linear-gradient(160deg,#070C07,#0B1B0C,#070C07);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:22px;flex-shrink:0;}
+.ah-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 50% 5%,rgba(0,200,83,.16),transparent 65%);}
+.ah-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,200,83,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,200,83,.04) 1px,transparent 1px);background-size:28px 28px;}
+.ah-ico{width:74px;height:74px;border-radius:22px;background:linear-gradient(145deg,#00C853,#006B2C);display:flex;align-items:center;justify-content:center;position:relative;z-index:2;margin-bottom:12px;box-shadow:0 10px 36px rgba(0,200,83,.35),0 0 0 1px rgba(0,200,83,.2);}
+.ah-ico svg{width:46px;height:46px;}
+.ah-nm{font-family:'Fraunces',serif;font-size:1.95rem;font-weight:700;color:var(--wh);position:relative;z-index:2;}
+.ah-nm span{color:var(--g);}
+.ah-sub{font-size:.72rem;color:rgba(74,106,76,.9);position:relative;z-index:2;margin-top:4px;letter-spacing:.05em;}
+.ab{width:100%;padding:22px 20px 50px;display:flex;flex-direction:column;align-items:center;}
 .at{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden;width:100%;margin-bottom:20px;}
-.at-b{flex:1;padding:11px;font-size:.81rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--mid);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
+.at-b{flex:1;padding:11px;font-size:.8rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--mid);transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
 .at-b.on{background:var(--g);color:var(--bk);}
 .aform{width:100%;display:flex;flex-direction:column;animation:fadeUp .35s ease both;}
 .rp{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
 .ro{border:2px solid var(--bd);border-radius:12px;padding:15px 10px;text-align:center;cursor:pointer;transition:all .22s;background:transparent;}
 .ro.on{border-color:var(--g);background:var(--gdim);}
-.ro[data-role="rider"].on{border-color:var(--blue);background:rgba(68,136,255,.07);}
+.ro[data-role="rider"].on{border-color:var(--blue);background:rgba(61,139,255,.07);}
 .ro-ico{font-size:1.9rem;display:block;margin-bottom:5px;}
 .ro-nm{font-size:.82rem;font-weight:700;color:var(--wh);}
 .ro-ds{font-size:.67rem;color:var(--mid);margin-top:2px;}
 .ro.on .ro-nm{color:var(--g);}
-.ro[data-role="rider"].on .ro-nm{color:#90C4FF;}
-.anote{font-size:.7rem;color:var(--mid);text-align:center;margin-top:7px;}
-.sep{display:flex;align-items:center;gap:10px;margin:8px 0;}
+.ro[data-role="rider"].on .ro-nm{color:#7DB8FF;}
+.anote{font-size:.7rem;color:var(--mid);text-align:center;margin-top:6px;}
+.adm-login-box{background:rgba(255,214,0,.04);border:1px solid rgba(255,214,0,.18);border-radius:10px;padding:14px;margin-bottom:10px;}
+.adm-login-box .fl{color:var(--gold);}
+.sep{display:flex;align-items:center;gap:10px;margin:10px 0;}
 .sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--bd);}
-.sep span{font-size:.67rem;color:var(--mid);letter-spacing:.1em;text-transform:uppercase;}
+.sep span{font-size:.65rem;color:var(--mid);letter-spacing:.1em;text-transform:uppercase;}
 
-/* ADMIN AUTH EXTRA */
-.admin-code-wrap{background:rgba(255,214,0,.05);border:1px solid rgba(255,214,0,.2);border-radius:10px;padding:14px;margin-bottom:10px;}
-.admin-code-wrap .fl{color:var(--gold);}
-.admin-code-wrap .input{border-color:rgba(255,214,0,.2);}
-.admin-code-wrap .input:focus{border-color:var(--gold);}
-
-/* TOP NAV */
+/* ══════════════════════════════
+   TOP NAV
+══════════════════════════════ */
 #topnav{height:var(--nav);background:var(--dk);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;z-index:50;}
-.logo{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:var(--wh);display:flex;align-items:center;gap:8px;}
+.logo{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:700;color:var(--wh);display:flex;align-items:center;gap:8px;text-decoration:none;}
 .logo-i{width:27px;height:27px;background:var(--g);border-radius:7px;display:flex;align-items:center;justify-content:center;}
 .logo-i svg{width:17px;height:17px;}
 .logo span{color:var(--g);}
 .tnr{display:flex;align-items:center;gap:9px;}
-.rbadge{font-size:.64rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;border-radius:100px;}
-.rbadge.customer{background:var(--gdim);color:var(--g);border:1px solid rgba(0,200,83,.22);}
-.rbadge.rider{background:rgba(68,136,255,.1);color:var(--blue);border:1px solid rgba(68,136,255,.22);}
-.rbadge.admin{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.2);}
-.ava-btn{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer;overflow:hidden;}
-.ava-btn img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.rbadge{font-size:.63rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 11px;border-radius:100px;}
+.rbadge.customer{background:var(--gdim);color:var(--g);border:1px solid rgba(0,200,83,.2);}
+.rbadge.rider{background:rgba(61,139,255,.1);color:var(--blue);border:1px solid rgba(61,139,255,.2);}
+.rbadge.admin{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.18);}
+.ava-btn{width:32px;height:32px;border-radius:50%;background:var(--card2);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.84rem;cursor:pointer;overflow:hidden;transition:border-color .2s;}
+.ava-btn:hover{border-color:var(--g);}
+.ava-btn img{width:100%;height:100%;object-fit:cover;}
 
-/* SCREENS */
+/* ══════════════════════════════
+   SCREENS
+══════════════════════════════ */
 #main{flex:1;overflow:hidden;position:relative;}
-.scr{position:absolute;inset:0;overflow-y:auto;padding:15px 15px calc(var(--bot)+20px);display:none;-webkit-overflow-scrolling:touch;}
+.scr{position:absolute;inset:0;overflow-y:auto;padding:15px 15px calc(var(--bot)+22px);display:none;-webkit-overflow-scrolling:touch;}
 .scr.on{display:block;}
 .scr::-webkit-scrollbar{width:3px;}
-.scr::-webkit-scrollbar-thumb{background:var(--bd);}
+.scr::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px;}
 .ph{margin-bottom:18px;}
-.ph-t{font-family:'Fraunces',serif;font-size:1.55rem;font-weight:700;color:var(--wh);margin-bottom:2px;}
-.ph-s{font-size:.78rem;color:var(--mid);}
+.ph-t{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:700;color:var(--wh);margin-bottom:2px;}
+.ph-s{font-size:.77rem;color:var(--mid);}
 
-/* MAP */
+/* ══════════════════════════════
+   MAP
+══════════════════════════════ */
 #cmap,#tmap,#rmap{border-radius:14px;border:1px solid var(--bd);overflow:hidden;position:relative;z-index:1;}
 #cmap{height:215px;margin-bottom:13px;}
 #tmap{height:215px;margin-bottom:13px;}
 #rmap{height:195px;margin-bottom:13px;}
-.leaflet-container{background:#080C08!important;}
-.leaflet-tile-pane{filter:brightness(.48) saturate(.5) hue-rotate(55deg);}
+.leaflet-container{background:#07090A!important;}
+.leaflet-tile-pane{filter:brightness(.45) saturate(.45) hue-rotate(55deg);}
 .leaflet-control-attribution{display:none!important;}
 .leaflet-control-zoom a{background:var(--card)!important;color:var(--wh)!important;border-color:var(--bd)!important;}
-.mbar{position:absolute;top:9px;left:9px;right:9px;z-index:2;background:rgba(8,12,8,.84);backdrop-filter:blur(12px);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;display:flex;align-items:center;gap:9px;pointer-events:none;}
+.mbar{position:absolute;top:9px;left:9px;right:9px;z-index:2;background:rgba(7,9,10,.85);backdrop-filter:blur(12px);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;display:flex;align-items:center;gap:9px;pointer-events:none;}
 .mbd{width:8px;height:8px;border-radius:50%;background:var(--g);flex-shrink:0;animation:pulse 2s ease infinite;}
 .mbd.y{background:var(--gold);animation:none;}
 .mbd.b{background:var(--blue);animation:none;}
-.mbt{font-size:.75rem;font-weight:600;color:var(--wh);}
-.mbs{font-size:.66rem;color:var(--mid);margin-left:auto;}
+.mbt{font-size:.74rem;font-weight:600;color:var(--wh);}
+.mbs{font-size:.65rem;color:var(--mid);margin-left:auto;}
 
-/* SIZE PICKER */
+/* ══════════════════════════════
+   SIZE PICKER
+══════════════════════════════ */
 .sizes{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:4px;}
 .sz{background:var(--card2);border:1.5px solid var(--bd);border-radius:11px;padding:11px 5px;text-align:center;cursor:pointer;transition:all .2s;}
 .sz.on{border-color:var(--g);background:var(--gdim);}
 .sz .si{font-size:1.3rem;display:block;margin-bottom:4px;}
-.sz .sn{font-size:.66rem;color:var(--mid);font-weight:600;}
-.sz .sp{font-size:.58rem;color:var(--mut);margin-top:2px;}
+.sz .sn{font-size:.65rem;color:var(--mid);font-weight:600;}
+.sz .sp{font-size:.57rem;color:var(--mut);margin-top:2px;}
 .sz.on .sn{color:var(--g);}
 
-/* PRICE BOX */
+/* ══════════════════════════════
+   PRICE BOX
+══════════════════════════════ */
 .pbox{background:var(--card2);border-radius:11px;padding:13px 15px;margin-bottom:13px;}
-.pr{display:flex;justify-content:space-between;font-size:.8rem;padding:3px 0;}
+.pr{display:flex;justify-content:space-between;font-size:.79rem;padding:3px 0;}
 .pr span:first-child{color:var(--mid);}
 .pt{display:flex;justify-content:space-between;margin-top:7px;padding-top:7px;border-top:1px solid var(--bd);}
 .pt span:first-child{font-weight:700;color:var(--wh);}
 .pt span:last-child{font-weight:800;color:var(--g);font-size:1.05rem;}
 
-/* TRACKING */
-.tcard{background:linear-gradient(135deg,rgba(0,200,83,.07),rgba(0,200,83,.02));border:1px solid rgba(0,200,83,.2);border-radius:16px;padding:17px;margin-bottom:13px;}
+/* PAYMENT METHOD TOGGLE */
+.pay-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:13px;}
+.pay-opt{border:2px solid var(--bd);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:all .22s;background:transparent;position:relative;overflow:hidden;}
+.pay-opt.on-momo{border-color:var(--g);background:var(--gdim);}
+.pay-opt.on-cash{border-color:var(--orange);background:rgba(255,140,0,.08);}
+.pay-opt .poi{font-size:1.7rem;display:block;margin-bottom:5px;}
+.pay-opt .pon{font-size:.8rem;font-weight:700;color:var(--wh);}
+.pay-opt .pod{font-size:.67rem;color:var(--mid);margin-top:2px;}
+.pay-opt.on-momo .pon{color:var(--g);}
+.pay-opt.on-cash .pon{color:var(--orange);}
+
+/* ══════════════════════════════
+   TRACKING
+══════════════════════════════ */
+.tcard{background:linear-gradient(135deg,rgba(0,200,83,.07),rgba(0,200,83,.02));border:1px solid rgba(0,200,83,.18);border-radius:16px;padding:17px;margin-bottom:13px;}
 .ttop{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
 .tdot{width:9px;height:9px;border-radius:50%;background:var(--g);flex-shrink:0;animation:pulse 1.4s ease infinite;}
-.tlbl{font-weight:700;font-size:.88rem;color:var(--wh);}
-.teta{margin-left:auto;font-size:.74rem;color:var(--g);font-weight:700;background:var(--gdim);padding:3px 9px;border-radius:100px;}
+.tlbl{font-weight:700;font-size:.87rem;color:var(--wh);}
+.teta{margin-left:auto;font-size:.73rem;color:var(--g);font-weight:700;background:var(--gdim);padding:3px 9px;border-radius:100px;}
 
-/* HISTORY */
+/* ══════════════════════════════
+   HISTORY
+══════════════════════════════ */
 .hi{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--bd);}
 .hi:last-child{border-bottom:none;}
-.hiico{width:36px;height:36px;border-radius:9px;background:var(--gdim);border:1px solid rgba(0,200,83,.12);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
-.hit{font-size:.85rem;font-weight:600;color:var(--wh);margin-bottom:3px;}
-.him{font-size:.7rem;color:var(--mid);}
-.hia{font-weight:800;color:var(--g);font-size:.87rem;white-space:nowrap;}
+.hiico{width:36px;height:36px;border-radius:9px;background:var(--gdim);border:1px solid rgba(0,200,83,.1);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+.hit{font-size:.84rem;font-weight:600;color:var(--wh);margin-bottom:3px;}
+.him{font-size:.69rem;color:var(--mid);}
+.hia{font-weight:800;color:var(--g);font-size:.86rem;white-space:nowrap;}
 
-/* RIDER */
+/* ══════════════════════════════
+   RIDER UI
+══════════════════════════════ */
 .obar{background:var(--card);border:1.5px solid var(--bd);border-radius:14px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;}
-.obar.on{border-color:rgba(0,200,83,.35);background:rgba(0,200,83,.04);}
-.ob-l h3{font-size:.96rem;font-weight:700;color:var(--wh);}
-.ob-l p{font-size:.72rem;color:var(--mid);margin-top:2px;}
+.obar.on{border-color:rgba(0,200,83,.32);background:rgba(0,200,83,.04);}
+.ob-l h3{font-size:.95rem;font-weight:700;color:var(--wh);}
+.ob-l p{font-size:.71rem;color:var(--mid);margin-top:2px;}
 .tog{width:50px;height:27px;background:var(--mut);border-radius:100px;position:relative;cursor:pointer;transition:background .3s;border:none;flex-shrink:0;}
 .tog.on{background:var(--g);}
 .togth{position:absolute;top:3px;left:3px;width:21px;height:21px;background:var(--wh);border-radius:50%;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.3);}
 .tog.on .togth{transform:translateX(23px);}
+
+/* WALLET CARD */
+.wallet-card{background:linear-gradient(135deg,#0F1E10,#152219);border:1.5px solid rgba(0,200,83,.22);border-radius:18px;padding:22px 20px;margin-bottom:13px;position:relative;overflow:hidden;}
+.wallet-card::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:rgba(0,200,83,.06);pointer-events:none;}
+.wc-label{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);margin-bottom:8px;}
+.wc-bal{font-family:'Fraunces',serif;font-size:2.4rem;font-weight:700;color:var(--g);margin-bottom:4px;}
+.wc-sub{font-size:.72rem;color:var(--mid);}
+.wc-actions{display:flex;gap:9px;margin-top:16px;}
+
 .egrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:13px;}
 .ebox{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center;}
-.en{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;color:var(--g);display:block;}
-.el{font-size:.6rem;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
-.jalert{background:linear-gradient(135deg,rgba(0,200,83,.1),rgba(0,200,83,.03));border:1.5px solid rgba(0,200,83,.3);border-radius:16px;padding:17px;margin-bottom:13px;animation:fadeUp .3s ease;}
-.jah{font-size:.66rem;letter-spacing:.15em;text-transform:uppercase;color:var(--g);margin-bottom:11px;display:flex;align-items:center;gap:6px;}
+.en{font-family:'Fraunces',serif;font-size:1.12rem;font-weight:700;color:var(--g);display:block;}
+.el{font-size:.59rem;color:var(--mid);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+
+.jalert{background:linear-gradient(135deg,rgba(0,200,83,.1),rgba(0,200,83,.02));border:1.5px solid rgba(0,200,83,.28);border-radius:16px;padding:17px;margin-bottom:13px;animation:fadeUp .3s ease;}
+.jah{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--g);margin-bottom:11px;display:flex;align-items:center;gap:6px;}
 .jap{width:7px;height:7px;border-radius:50%;background:var(--g);animation:pulse 1s ease infinite;}
 .jaaddr{font-size:.92rem;font-weight:700;color:var(--wh);margin-bottom:3px;}
 .jameta{font-size:.75rem;color:var(--mid);margin-bottom:9px;}
 .japrice{font-family:'Fraunces',serif;font-size:1.85rem;font-weight:700;color:var(--g);}
-.jashare{font-size:.7rem;color:var(--mid);}
+.jashare{font-size:.69rem;color:var(--mid);}
 .jabtns{display:flex;gap:9px;margin-top:13px;}
-.jaacc{flex:1;background:var(--g);color:var(--bk);border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;font-size:.85rem;font-family:'Plus Jakarta Sans',sans-serif;}
-.jadec{background:var(--card2);color:var(--mid);border:1px solid var(--bd);padding:12px 14px;border-radius:10px;cursor:pointer;font-size:.85rem;font-family:'Plus Jakarta Sans',sans-serif;}
-.ajcard{background:rgba(68,136,255,.07);border:1.5px solid rgba(68,136,255,.22);border-radius:16px;padding:17px;margin-bottom:13px;}
+.jaacc{flex:1;background:var(--g);color:var(--bk);border:none;padding:12px;border-radius:10px;font-weight:800;cursor:pointer;font-size:.84rem;font-family:'Plus Jakarta Sans',sans-serif;}
+.jadec{background:var(--card2);color:var(--mid);border:1px solid var(--bd);padding:12px 14px;border-radius:10px;cursor:pointer;font-size:.84rem;font-family:'Plus Jakarta Sans',sans-serif;}
+.ajcard{background:rgba(61,139,255,.07);border:1.5px solid rgba(61,139,255,.2);border-radius:16px;padding:17px;margin-bottom:13px;}
 
-/* ADMIN */
+/* ══════════════════════════════
+   ADMIN
+══════════════════════════════ */
 .adm-tabs{display:flex;background:var(--card);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-bottom:16px;}
-.adm-tab{flex:1;padding:10px 5px;font-size:.72rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--mid);font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;text-align:center;}
+.adm-tab{flex:1;padding:10px 5px;font-size:.71rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--mid);font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;text-align:center;}
 .adm-tab.on{background:var(--gold);color:var(--bk);}
 .adm-pane{display:none;}
 .adm-pane.on{display:block;}
 .agrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
 .astat{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;}
-.an{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;color:var(--g);}
-.al{font-size:.67rem;color:var(--mid);margin-top:3px;text-transform:uppercase;letter-spacing:.07em;}
-
-/* USER MANAGEMENT */
-.ucard{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:15px;margin-bottom:10px;transition:all .2s;}
-.ucard.banned{opacity:.55;border-color:rgba(255,68,68,.25);}
+.an{font-family:'Fraunces',serif;font-size:1.55rem;font-weight:700;color:var(--g);}
+.al{font-size:.65rem;color:var(--mid);margin-top:3px;text-transform:uppercase;letter-spacing:.07em;}
+.ucard{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:15px;margin-bottom:10px;}
+.ucard.banned{opacity:.5;border-color:rgba(255,68,68,.22);}
 .u-top{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
-.u-ava{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;overflow:hidden;}
-.u-ava.c{background:var(--gdim);}
-.u-ava.r{background:rgba(68,136,255,.12);}
-.u-ava img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-.u-name{font-size:.88rem;font-weight:700;color:var(--wh);}
-.u-email{font-size:.7rem;color:var(--mid);margin-top:1px;}
-.u-role-badge{font-size:.6rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:100px;margin-top:3px;display:inline-block;}
+.u-ava{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;overflow:hidden;}
+.u-ava img{width:100%;height:100%;object-fit:cover;}
+.u-name{font-size:.87rem;font-weight:700;color:var(--wh);}
+.u-email{font-size:.69rem;color:var(--mid);margin-top:1px;}
 .u-actions{display:flex;gap:7px;flex-wrap:wrap;}
-.u-btn{padding:7px 11px;border-radius:8px;border:none;font-size:.71rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;}
-.u-msg{background:rgba(68,136,255,.12);color:#90C4FF;border:1px solid rgba(68,136,255,.22);}
-.u-ban{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.2);}
-.u-unban{background:rgba(0,200,83,.1);color:var(--g);border:1px solid rgba(0,200,83,.2);}
-.u-del{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.2);}
-.u-filter{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap;}
-.uf-btn{padding:6px 12px;border-radius:100px;border:1px solid var(--bd);background:transparent;font-size:.71rem;font-weight:600;color:var(--mid);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;}
+.u-btn{padding:6px 10px;border-radius:8px;border:none;font-size:.7rem;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;}
+.u-msg{background:rgba(61,139,255,.1);color:#7DB8FF;border:1px solid rgba(61,139,255,.2);}
+.u-ban{background:rgba(255,214,0,.1);color:var(--gold);border:1px solid rgba(255,214,0,.18);}
+.u-unban{background:rgba(0,200,83,.1);color:var(--g);border:1px solid rgba(0,200,83,.18);}
+.u-del{background:rgba(255,68,68,.1);color:var(--red);border:1px solid rgba(255,68,68,.18);}
+.u-filter{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;}
+.uf-btn{padding:6px 12px;border-radius:100px;border:1px solid var(--bd);background:transparent;font-size:.7rem;font-weight:600;color:var(--mid);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;}
 .uf-btn.on{background:var(--gold);color:var(--bk);border-color:var(--gold);}
-.usearch{margin-bottom:12px;}
-.empty-state{text-align:center;padding:40px 20px;color:var(--mid);font-size:.82rem;}
-.empty-state .es-ico{font-size:2.5rem;display:block;margin-bottom:10px;}
-
-/* CONFIG */
 .crow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd);gap:13px;}
 .crow:last-child{border-bottom:none;}
-.clw h4{font-size:.84rem;font-weight:600;color:var(--wh);}
-.clw p{font-size:.69rem;color:var(--mid);}
-.cinp{width:88px;background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:7px 10px;color:var(--wh);font-size:.84rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;text-align:right;}
+.clw h4{font-size:.83rem;font-weight:600;color:var(--wh);}
+.clw p{font-size:.68rem;color:var(--mid);}
+.cinp{width:88px;background:var(--card2);border:1px solid var(--bd);border-radius:8px;padding:7px 10px;color:var(--wh);font-size:.83rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;text-align:right;}
 .cinp:focus{border-color:var(--g);}
-.ttbl{width:100%;border-collapse:collapse;font-size:.75rem;}
-.ttbl th{text-align:left;padding:6px 0;color:var(--mid);font-size:.63rem;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bd);}
-.ttbl td{padding:8px 0;color:var(--wh);border-bottom:1px solid rgba(28,43,28,.5);}
+.ttbl{width:100%;border-collapse:collapse;font-size:.74rem;}
+.ttbl th{text-align:left;padding:6px 0;color:var(--mid);font-size:.62rem;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--bd);}
+.ttbl td{padding:8px 0;color:var(--wh);border-bottom:1px solid rgba(26,43,28,.5);}
 .ttbl tr:last-child td{border-bottom:none;}
+.adm-msg-item{background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:13px;margin-bottom:9px;}
+.adm-msg-header{display:flex;justify-content:space-between;margin-bottom:6px;}
+.adm-msg-to{font-size:.71rem;font-weight:700;color:var(--gold);}
+.adm-msg-time{font-size:.65rem;color:var(--mid);}
+.adm-msg-body{font-size:.79rem;color:rgba(235,245,236,.55);line-height:1.55;}
+.empty-state{text-align:center;padding:36px 20px;color:var(--mid);font-size:.8rem;}
+.empty-state .es-ico{font-size:2.5rem;display:block;margin-bottom:9px;}
 
-/* ADMIN MESSAGES */
-.adm-msg-list{display:flex;flex-direction:column;gap:10px;}
-.adm-msg-item{background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:13px;}
-.adm-msg-header{display:flex;justify-content:space-between;margin-bottom:7px;}
-.adm-msg-to{font-size:.72rem;font-weight:700;color:var(--gold);}
-.adm-msg-time{font-size:.66rem;color:var(--mid);}
-.adm-msg-body{font-size:.8rem;color:rgba(237,247,237,.65);line-height:1.55;}
-
-/* PROFILE */
-.prof-pic-wrap{position:relative;display:inline-block;}
-.prof-pic{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;overflow:hidden;border:3px solid var(--g);}
-.prof-pic img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
-.prof-pic-edit{position:absolute;bottom:2px;right:2px;width:26px;height:26px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;cursor:pointer;border:2px solid var(--bk);}
+/* ══════════════════════════════
+   PROFILE
+══════════════════════════════ */
 .phdr{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--bd);border-radius:16px;padding:20px 17px;display:flex;align-items:center;gap:14px;margin-bottom:13px;}
+.prof-pic-wrap{position:relative;display:inline-block;}
+.prof-pic{width:72px;height:72px;border-radius:50%;border:2.5px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:1.9rem;overflow:hidden;flex-shrink:0;}
+.prof-pic img{width:100%;height:100%;object-fit:cover;}
+.prof-pic-edit{position:absolute;bottom:1px;right:1px;width:24px;height:24px;background:var(--g);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;cursor:pointer;border:2px solid var(--bk);}
 .pname{font-weight:800;font-size:1rem;color:var(--wh);}
-.prole{font-size:.69rem;margin-top:2px;font-weight:600;}
-.prole.c{color:var(--g);}
-.prole.r{color:#90C4FF;}
-.prole.a{color:var(--gold);}
-.pemail{font-size:.74rem;color:var(--mid);margin-top:3px;}
+.prole{font-size:.69rem;font-weight:600;margin-top:2px;}
+.prole.customer{color:var(--g);}
+.prole.rider{color:#7DB8FF;}
+.prole.admin{color:var(--gold);}
+.pemail,.pphone{font-size:.72rem;color:var(--mid);margin-top:2px;}
 .srow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd);cursor:pointer;}
 .srow:last-child{border-bottom:none;}
-.sico{width:33px;height:33px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
-.slbl{font-size:.84rem;font-weight:500;color:var(--wh);}
+.sico{width:32px;height:32px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0;}
+.slbl{font-size:.83rem;font-weight:500;color:var(--wh);}
 .sarr{margin-left:auto;color:var(--mid);}
 
-/* FARE NOTICE */
-.fnotice{background:rgba(255,214,0,.05);border:1.5px solid rgba(255,214,0,.2);border-radius:14px;padding:17px;margin-bottom:13px;}
+/* SUPPORT */
+.support-opt{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 15px;margin-bottom:10px;cursor:pointer;transition:border-color .2s;}
+.support-opt:hover{border-color:var(--g);}
+.so-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.so-title{font-size:.85rem;font-weight:700;color:var(--wh);}
+.so-desc{font-size:.71rem;color:var(--mid);margin-top:2px;}
+.stag{font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:100px;margin-left:7px;}
+.stag-live{background:rgba(0,200,83,.15);color:var(--g);}
 
-/* MODALS - bottom sheet */
-.mbg{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);backdrop-filter:blur(9px);display:none;align-items:flex-end;justify-content:center;}
+/* MESSAGING */
+.msg-thread{display:flex;flex-direction:column;gap:10px;max-height:250px;overflow-y:auto;padding:4px 0;margin-bottom:12px;}
+.msg-b{max-width:82%;padding:10px 13px;border-radius:14px;font-size:.81rem;line-height:1.5;}
+.msg-b.sent{background:var(--gdim);border:1px solid rgba(0,200,83,.18);align-self:flex-end;border-bottom-right-radius:4px;color:var(--wh);}
+.msg-b.recv{background:var(--card2);border:1px solid var(--bd);align-self:flex-start;border-bottom-left-radius:4px;}
+.msg-meta{font-size:.61rem;color:var(--mid);margin-top:3px;}
+.msg-row{display:flex;gap:9px;align-items:flex-end;}
+.msg-ta{flex:1;background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:10px 13px;color:var(--wh);font-size:.83rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;resize:none;min-height:40px;max-height:90px;}
+.msg-ta:focus{border-color:var(--g);}
+.msg-send{width:40px;height:40px;border-radius:10px;background:var(--g);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+
+/* ══════════════════════════════
+   MODALS
+══════════════════════════════ */
+.mbg{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;}
 .mbg.show{display:flex;}
 .msh{background:var(--dk);border:1px solid var(--bd);border-radius:22px 22px 0 0;padding:24px 18px 42px;width:100%;max-width:430px;max-height:92vh;overflow-y:auto;}
 .shdl{width:33px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 20px;}
-.sht{font-family:'Fraunces',serif;font-size:1.28rem;font-weight:700;color:var(--wh);margin-bottom:5px;}
-.sht-sub{font-size:.78rem;color:var(--mid);margin-bottom:16px;}
-
-/* CENTER MODAL */
+.sht{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:700;color:var(--wh);margin-bottom:4px;}
+.sht-sub{font-size:.77rem;color:var(--mid);margin-bottom:14px;}
 .cmbg{position:fixed;inset:0;z-index:650;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:18px;}
 .cmbg.show{display:flex;}
 .cmsh{background:var(--dk);border:1px solid var(--bd);border-radius:22px;padding:24px 18px;width:100%;max-width:390px;max-height:90vh;overflow-y:auto;}
-
-/* MOMO OPTIONS */
 .mo{display:flex;align-items:center;gap:12px;background:var(--card);border:1.5px solid var(--bd);border-radius:12px;padding:12px 14px;cursor:pointer;transition:all .2s;margin-bottom:9px;}
 .mo.sel{border-color:var(--g);background:var(--gdim);}
-.mo-chk{margin-left:auto;color:var(--g);opacity:0;font-size:.95rem;}
+.mo-chk{margin-left:auto;color:var(--g);opacity:0;}
 .mo.sel .mo-chk{opacity:1;}
 
-/* MESSAGING */
-.msg-thread{display:flex;flex-direction:column;gap:10px;min-height:100px;max-height:260px;overflow-y:auto;padding:6px 0;margin-bottom:12px;}
-.msg-b{max-width:82%;padding:10px 13px;border-radius:14px;font-size:.82rem;line-height:1.5;}
-.msg-b.sent{background:var(--gdim);color:var(--wh);border:1px solid rgba(0,200,83,.2);align-self:flex-end;border-bottom-right-radius:4px;}
-.msg-b.recv{background:var(--card2);color:var(--wh);border:1px solid var(--bd);align-self:flex-start;border-bottom-left-radius:4px;}
-.msg-b.admin-sent{background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.2);align-self:flex-end;border-bottom-right-radius:4px;}
-.msg-meta{font-size:.62rem;color:var(--mid);margin-top:4px;}
-.msg-row{display:flex;gap:9px;align-items:flex-end;}
-.msg-ta{flex:1;background:var(--card2);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;color:var(--wh);font-size:.84rem;font-family:'Plus Jakarta Sans',sans-serif;outline:none;resize:none;min-height:42px;max-height:90px;}
-.msg-ta:focus{border-color:var(--g);}
-.msg-send{width:42px;height:42px;border-radius:10px;background:var(--g);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;transition:all .2s;}
-.msg-send:hover{background:#00E060;}
+/* CASH CONFIRM CARD */
+.cash-confirm{background:linear-gradient(135deg,rgba(255,140,0,.1),rgba(255,140,0,.04));border:1.5px solid rgba(255,140,0,.28);border-radius:16px;padding:20px;margin-bottom:14px;text-align:center;}
+.cc-amount{font-family:'Fraunces',serif;font-size:2.8rem;font-weight:700;color:var(--orange);margin:12px 0 4px;}
+.cc-size{font-size:.85rem;color:rgba(235,245,236,.6);margin-bottom:4px;}
+.cc-note{font-size:.77rem;color:rgba(235,245,236,.45);line-height:1.5;}
+.cc-split{display:flex;justify-content:space-around;background:rgba(255,140,0,.06);border-radius:10px;padding:14px;margin-top:14px;}
+.cc-split-item{text-align:center;}
+.cc-split-val{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;}
+.cc-split-lbl{font-size:.62rem;color:var(--mid);margin-top:3px;}
 
-/* SUPPORT */
-.support-option{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 15px;margin-bottom:10px;cursor:pointer;transition:all .2s;}
-.support-option:hover{border-color:var(--g);}
-.so-ico{width:40px;height:40px;border-radius:10px;background:var(--gdim);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-.so-title{font-size:.87rem;font-weight:700;color:var(--wh);}
-.so-desc{font-size:.72rem;color:var(--mid);margin-top:2px;}
-.so-arr{margin-left:auto;color:var(--mid);}
-.support-tag{display:inline-block;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:100px;margin-left:8px;}
-.tag-live{background:rgba(0,200,83,.15);color:var(--g);}
-.tag-fast{background:rgba(68,136,255,.12);color:var(--blue);}
+/* DEPOSIT MODAL */
+.deposit-amts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px;}
+.da{border:1.5px solid var(--bd);border-radius:10px;padding:13px 8px;text-align:center;cursor:pointer;transition:all .2s;}
+.da.on{border-color:var(--g);background:var(--gdim);}
+.da-amt{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--wh);}
+.da.on .da-amt{color:var(--g);}
+.da-lbl{font-size:.62rem;color:var(--mid);margin-top:2px;}
 
-/* UPLOAD ZONE */
-.uz{border:2px dashed var(--bd);border-radius:12px;padding:26px;text-align:center;cursor:pointer;transition:all .2s;margin:13px 0;}
-.uz:hover{border-color:var(--g);}
-.uz-i{font-size:2.3rem;display:block;margin-bottom:7px;}
-.uz p{font-size:.78rem;color:var(--mid);}
+/* FARE NOTICE */
+.fnotice{background:rgba(255,214,0,.05);border:1.5px solid rgba(255,214,0,.2);border-radius:14px;padding:17px;margin-bottom:13px;}
 
 /* BOTTOM NAV */
 #botnav{height:var(--bot);background:var(--dk);border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-around;flex-shrink:0;padding-bottom:5px;}
 .ntab{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:6px 12px;border-radius:10px;transition:all .2s;border:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;}
 .ntab .ni{font-size:1.2rem;line-height:1;}
-.ntab .nl{font-size:.57rem;color:var(--mid);font-weight:600;letter-spacing:.04em;}
+.ntab .nl{font-size:.56rem;color:var(--mid);font-weight:600;letter-spacing:.04em;}
 .ntab.on .nl{color:var(--g);}
 .ntab.on .ni{filter:drop-shadow(0 0 5px var(--g));}
-.ntab[data-r="rider"].on .nl{color:#90C4FF;}
+.ntab[data-r="rider"].on .nl{color:#7DB8FF;}
 .ntab[data-r="rider"].on .ni{filter:drop-shadow(0 0 5px var(--blue));}
 .ntab[data-r="admin"].on .nl{color:var(--gold);}
 .ntab[data-r="admin"].on .ni{filter:drop-shadow(0 0 5px var(--gold));}
 
-/* NOTIFY BADGE */
-.notif-dot{position:relative;}
-.notif-dot::after{content:'';position:absolute;top:-2px;right:-2px;width:8px;height:8px;border-radius:50%;background:var(--red);border:1.5px solid var(--dk);}
-
-/* OFFLINE + INSTALL */
-#offline{background:var(--gold);color:var(--bk);text-align:center;padding:7px;font-size:.71rem;font-weight:700;letter-spacing:.05em;flex-shrink:0;}
-#istrip{position:fixed;bottom:calc(var(--bot)+9px);left:9px;right:9px;z-index:300;background:var(--card2);border:1px solid rgba(0,200,83,.28);border-radius:14px;padding:13px 15px;display:none;align-items:center;gap:11px;box-shadow:0 8px 28px rgba(0,0,0,.4);}
+/* OFFLINE + INSTALL + TOAST */
+#offline{background:var(--gold);color:var(--bk);text-align:center;padding:7px;font-size:.7rem;font-weight:700;letter-spacing:.05em;flex-shrink:0;}
+#istrip{position:fixed;bottom:calc(var(--bot)+9px);left:9px;right:9px;z-index:300;background:var(--card2);border:1px solid rgba(0,200,83,.26);border-radius:14px;padding:13px 15px;display:none;align-items:center;gap:11px;box-shadow:0 8px 28px rgba(0,0,0,.4);}
 #istrip.show{display:flex;}
-.ist h4{font-size:.82rem;font-weight:700;color:var(--wh);}
-.ist p{font-size:.68rem;color:var(--mid);margin-top:2px;}
-.isb{background:var(--g);color:var(--bk);border:none;padding:8px 13px;border-radius:8px;font-weight:800;font-size:.72rem;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;}
+.ist h4{font-size:.81rem;font-weight:700;color:var(--wh);}
+.ist p{font-size:.67rem;color:var(--mid);margin-top:2px;}
+.isb{background:var(--g);color:var(--bk);border:none;padding:8px 13px;border-radius:8px;font-weight:800;font-size:.71rem;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;white-space:nowrap;}
 .isx{background:none;border:none;color:var(--mid);cursor:pointer;font-size:1rem;padding:0;}
-
-/* TOAST */
-#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:900;background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:12px 20px;font-size:.82rem;font-weight:600;color:var(--wh);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;}
+#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-10px);z-index:900;background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:11px 20px;font-size:.81rem;font-weight:600;color:var(--wh);opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;max-width:90vw;text-align:center;}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 #toast.green{border-color:rgba(0,200,83,.3);color:var(--g);}
 #toast.red{border-color:rgba(255,68,68,.3);color:var(--red);}
+#toast.orange{border-color:rgba(255,140,0,.3);color:var(--orange);}
 </style>
 </head>
 <body>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- AUTH -->
+<!-- ══════════════════════════════════════════
+     AUTH SCREEN
+══════════════════════════════════════════ -->
 <div id="auth">
   <div class="ah">
-    <div class="ah-bg"></div>
-    <div class="ah-grid"></div>
-    <div class="ah-logo">
-      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="24" cy="24" r="22" fill="rgba(0,0,0,0.15)"/>
-        <!-- Recycling arrows -->
-        <path d="M24 5 L29 14 L26 14 L26 22 L22 22 L22 14 L19 14 Z" fill="white" opacity=".95"/>
-        <path d="M24 5 L29 14 L26 14 L26 22 L22 22 L22 14 L19 14 Z" fill="white" opacity=".95" transform="rotate(120 24 24)"/>
-        <path d="M24 5 L29 14 L26 14 L26 22 L22 22 L22 14 L19 14 Z" fill="white" opacity=".95" transform="rotate(240 24 24)"/>
+    <div class="ah-bg"></div><div class="ah-grid"></div>
+    <div class="ah-ico">
+      <svg viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="24" r="21" fill="rgba(0,0,0,.15)"/>
+        <path d="M24 5L29 14H26V22H22V14H19Z" fill="white" opacity=".95"/>
+        <path d="M24 5L29 14H26V22H22V14H19Z" fill="white" opacity=".95" transform="rotate(120 24 24)"/>
+        <path d="M24 5L29 14H26V22H22V14H19Z" fill="white" opacity=".95" transform="rotate(240 24 24)"/>
         <circle cx="24" cy="24" r="4.5" fill="white"/>
-        <!-- Tricycle wheels -->
-        <circle cx="10" cy="37" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".6"/>
-        <circle cx="24" cy="39" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".6"/>
-        <circle cx="38" cy="37" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".6"/>
-        <path d="M10 37 L24 39 L38 37" stroke="white" stroke-width="1.2" fill="none" opacity=".6"/>
+        <circle cx="10" cy="37" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".55"/>
+        <circle cx="24" cy="39" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".55"/>
+        <circle cx="38" cy="37" r="3.5" stroke="white" stroke-width="1.5" fill="none" opacity=".55"/>
+        <path d="M10 37L24 39L38 37" stroke="white" stroke-width="1.2" fill="none" opacity=".55"/>
       </svg>
     </div>
-    <div class="ah-name">Waste<span>Go</span></div>
+    <div class="ah-nm">Waste<span>Go</span></div>
     <p class="ah-sub">On-demand waste collection · Ghana 🇬🇭</p>
   </div>
 
   <div class="ab">
-    <div class="at" style="width:100%;">
-      <button class="at-b on" onclick="aTab('login')">Sign In</button>
-      <button class="at-b" onclick="aTab('register')">Register</button>
-    </div>
+    <div class="at" style="width:100%;"><button class="at-b on" onclick="aTab('login')">Sign In</button><button class="at-b" onclick="aTab('register')">Register</button></div>
 
     <!-- LOGIN -->
     <div id="frm-login" class="aform" style="width:100%;">
-      <div class="fw">
-        <label class="fl">Email Address</label>
-        <input class="input" id="l-email" type="email" placeholder="you@example.com" autocomplete="email"/>
-        <span class="fe" id="l-email-e">Enter a valid email (e.g. name@domain.com)</span>
-      </div>
-      <div class="fw">
-        <label class="fl">Password</label>
-        <input class="input" id="l-pass" type="password" placeholder="Your password" autocomplete="current-password"/>
-        <span class="fe" id="l-pass-e">Password is required</span>
-      </div>
+      <div class="fw"><label class="fl">Email Address</label><input class="input" id="l-email" type="email" placeholder="you@example.com" autocomplete="email"/><span class="fe" id="l-email-e">Enter a valid email address</span></div>
+      <div class="fw"><label class="fl">Password</label><input class="input" id="l-pass" type="password" placeholder="Your password" autocomplete="current-password"/><span class="fe" id="l-pass-e">Password is required</span></div>
       <button class="btn btn-g" id="l-btn" onclick="doLogin()" style="margin-top:2px;">Sign In</button>
-
       <div class="sep"><span>Admin Access</span></div>
-      <div class="admin-code-wrap">
+      <div class="adm-login-box">
         <label class="fl" style="color:var(--gold);">Admin Email</label>
         <input class="input" id="la-email" type="email" placeholder="admin@wastego.gh" autocomplete="off" style="margin-bottom:10px;"/>
-        <span class="fe" id="la-email-e">Enter the admin email address</span>
+        <span class="fe" id="la-email-e">Enter admin email</span>
         <label class="fl" style="color:var(--gold);margin-top:4px;">Admin Password</label>
         <input class="input" id="la-pass" type="password" placeholder="Admin password" autocomplete="off"/>
-        <span class="fe" id="la-pass-e">Admin password is required</span>
+        <span class="fe" id="la-pass-e">Admin password required</span>
       </div>
       <button class="btn btn-gold" id="la-btn" onclick="doAdminLogin()" style="padding:12px;">🔐 Admin Sign In</button>
-      <p class="anote">Demo admin: <strong style="color:var(--gold);">admin@wastego.gh</strong> / <strong style="color:var(--gold);">admin123</strong></p>
+      <p class="anote">Admin credentials: <strong style="color:var(--gold);">admin@wastego.gh / admin2024!</strong></p>
     </div>
 
     <!-- REGISTER -->
@@ -417,1290 +437,1441 @@ textarea.input{resize:vertical;min-height:90px;}
         <div class="ro on" data-role="customer" onclick="pickRole(this)"><span class="ro-ico">🏠</span><span class="ro-nm">Customer</span><span class="ro-ds">Request pickups</span></div>
         <div class="ro" data-role="rider" onclick="pickRole(this)"><span class="ro-ico">🛺</span><span class="ro-nm">Rider</span><span class="ro-ds">Earn by collecting</span></div>
       </div>
-      <div class="fw">
-        <label class="fl">Full Name</label>
-        <input class="input" id="r-name" type="text" placeholder="e.g. Kwame Mensah" autocomplete="name"/>
-        <span class="fe" id="r-name-e">Full name required (min 2 characters)</span>
-      </div>
-      <div class="fw">
-        <label class="fl">Email Address</label>
-        <input class="input" id="r-email" type="email" placeholder="you@example.com" autocomplete="email"/>
-        <span class="fe" id="r-email-e">Enter a valid email (e.g. name@domain.com)</span>
-      </div>
-      <div class="fw">
-        <label class="fl">Phone / MoMo Number</label>
-        <input class="input" id="r-phone" type="tel" placeholder="+233 24 000 0000" autocomplete="tel"/>
-        <span class="fe" id="r-phone-e">Enter a valid Ghana number (e.g. 0241234567)</span>
-      </div>
-      <div class="fw">
-        <label class="fl">Password</label>
-        <input class="input" id="r-pass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/>
-        <span class="fe" id="r-pass-e">Password must be at least 6 characters</span>
-      </div>
+      <div class="fw"><label class="fl">Full Name</label><input class="input" id="r-name" type="text" placeholder="e.g. Kwame Mensah" autocomplete="name"/><span class="fe" id="r-name-e">Name required (min 2 characters)</span></div>
+      <div class="fw"><label class="fl">Email Address</label><input class="input" id="r-email" type="email" placeholder="you@example.com" autocomplete="email"/><span class="fe" id="r-email-e">Enter a valid email address</span></div>
+      <div class="fw"><label class="fl">Phone / MoMo Number</label><input class="input" id="r-phone" type="tel" placeholder="+233 24 000 0000" autocomplete="tel"/><span class="fe" id="r-phone-e">Valid Ghana number required (e.g. 0241234567)</span></div>
+      <div class="fw"><label class="fl">Password</label><input class="input" id="r-pass" type="password" placeholder="Min. 6 characters" autocomplete="new-password"/><span class="fe" id="r-pass-e">Password must be at least 6 characters</span></div>
       <div id="r-extra" style="display:none;flex-direction:column;gap:0;">
-        <div class="fw">
-          <label class="fl">Tricycle / Vehicle ID</label>
-          <input class="input" id="r-vehicle" type="text" placeholder="e.g. KW-042"/>
-          <span class="fe" id="r-vehicle-e">Vehicle ID is required for riders</span>
-        </div>
-        <div class="fw">
-          <label class="fl">Operating Region</label>
-          <select class="input" id="r-region">
-            <option value="">Select your region</option>
-            <option>Greater Accra</option><option>Ashanti</option>
-            <option>Central</option><option>Western</option><option>Northern</option>
-          </select>
-          <span class="fe" id="r-region-e">Please select your operating region</span>
+        <div class="fw"><label class="fl">Tricycle / Vehicle ID</label><input class="input" id="r-vehicle" type="text" placeholder="e.g. KW-042"/><span class="fe" id="r-vehicle-e">Vehicle ID required</span></div>
+        <div class="fw"><label class="fl">Operating Region</label>
+          <select class="input" id="r-region"><option value="">Select region</option><option>Greater Accra</option><option>Ashanti</option><option>Central</option><option>Western</option><option>Northern</option></select>
+          <span class="fe" id="r-region-e">Please select your region</span>
         </div>
       </div>
       <button class="btn btn-g" id="r-btn" onclick="doRegister()" style="margin-top:4px;">Create Account</button>
-      <p class="anote" style="color:var(--red);font-weight:600;margin-top:6px;">⚠ Role cannot be changed after registration</p>
+      <p class="anote" style="color:rgba(255,68,68,.7);font-weight:600;margin-top:6px;">⚠ Role cannot be changed after registration</p>
     </div>
   </div>
 </div>
 
-<!-- OFFLINE -->
 <div id="offline" class="hidden">📶 Offline — showing cached data</div>
 
 <!-- TOP NAV -->
 <div id="topnav">
-  <div class="logo">
-    <div class="logo-i">
-      <svg viewBox="0 0 20 20" fill="none"><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white"/><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white" transform="rotate(120 10 10)"/><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white" transform="rotate(240 10 10)"/></svg>
-    </div>
-    Waste<span>Go</span>
-  </div>
-  <div class="tnr">
-    <span class="rbadge customer" id="rbadge">Customer</span>
-    <div class="ava-btn" id="topava" onclick="goToProfile()">👤</div>
-  </div>
+  <div class="logo"><div class="logo-i"><svg viewBox="0 0 20 20" fill="none"><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white"/><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white" transform="rotate(120 10 10)"/><path d="M10 2L12.5 6.5H11V10H9V6.5H7.5Z" fill="white" transform="rotate(240 10 10)"/></svg></div>Waste<span>Go</span></div>
+  <div class="tnr"><span class="rbadge customer" id="rbadge">Customer</span><div class="ava-btn" id="topava" onclick="goToProfile()">👤</div></div>
 </div>
 
 <!-- MAIN -->
 <div id="main">
 
-  <!-- ══════════ CUSTOMER HOME ══════════ -->
-  <div class="scr" id="s-home">
-    <div class="ph"><p class="ph-s" id="cgreet">Good day 👋</p><h1 class="ph-t">Request Pickup</h1></div>
-    <div style="position:relative;margin-bottom:13px;">
-      <div id="cmap"></div>
-      <div class="mbar"><div class="mbd" id="cmap-dot"></div><span class="mbt" id="cmap-txt">Locating you...</span><span class="mbs" id="cmap-sub"></span></div>
+<!-- ══ CUSTOMER HOME ══ -->
+<div class="scr" id="s-home">
+  <div class="ph"><p class="ph-s" id="cgreet">Good day 👋</p><h1 class="ph-t">Request Pickup</h1></div>
+  <div style="position:relative;margin-bottom:13px;"><div id="cmap"></div><div class="mbar"><div class="mbd" id="cmap-dot"></div><span class="mbt" id="cmap-txt">Locating you...</span><span class="mbs" id="cmap-sub"></span></div></div>
+  <div class="card" style="padding:12px 14px;margin-bottom:11px;"><p class="lbl">Pickup Location</p><input class="input" id="pickup-addr" type="text" placeholder="Enter your address..." style="margin-top:5px;"/></div>
+  <div class="card">
+    <p class="lbl">Load Size</p>
+    <div class="sizes">
+      <div class="sz" onclick="pickSz(this,'Small',15)"><span class="si">🗑️</span><span class="sn">Small</span><span class="sp">GH₵15+</span></div>
+      <div class="sz on" onclick="pickSz(this,'Medium',28)"><span class="si">📦</span><span class="sn">Medium</span><span class="sp">GH₵28+</span></div>
+      <div class="sz" onclick="pickSz(this,'Large',45)"><span class="si">🏗️</span><span class="sn">Large</span><span class="sp">GH₵45+</span></div>
+      <div class="sz" onclick="pickSz(this,'Bulk',80)"><span class="si">🚛</span><span class="sn">Bulk</span><span class="sp">GH₵80+</span></div>
     </div>
-    <div class="card" style="padding:12px 14px;margin-bottom:11px;">
-      <p class="lbl">Pickup Location</p>
-      <input class="input" id="pickup-addr" type="text" placeholder="Enter your address..." style="margin-top:5px;"/>
+    <div style="margin-top:12px;"><p class="lbl">Special Waste</p>
+      <select class="input" onchange="pickSur(this.value)"><option value="0">None</option><option value="10">Hazardous Waste (+GH₵10)</option><option value="8">E-Waste / Electronics (+GH₵8)</option><option value="5">Construction Debris (+GH₵5)</option></select>
     </div>
+  </div>
+  <div class="pbox">
+    <div class="pr"><span>Base fee</span><span id="p-base">GH₵ 28.00</span></div>
+    <div class="pr"><span>Distance (2.4 km)</span><span>GH₵ 7.20</span></div>
+    <div class="pr"><span>Surcharge</span><span id="p-sur">GH₵ 0.00</span></div>
+    <div class="pt"><span>Total Estimate</span><span id="p-tot">GH₵ 35.20</span></div>
+  </div>
+  <!-- Payment Method -->
+  <p class="lbl" style="margin-bottom:8px;">Payment Method</p>
+  <div class="pay-toggle">
+    <div class="pay-opt on-momo" id="pay-opt-momo" onclick="selectPayMethod('momo')"><span class="poi">📱</span><span class="pon">Mobile Money</span><span class="pod">MTN · Vodafone · AirtelTigo</span></div>
+    <div class="pay-opt" id="pay-opt-cash" onclick="selectPayMethod('cash')"><span class="poi">💵</span><span class="pon">Cash</span><span class="pod">Pay rider directly</span></div>
+  </div>
+  <button class="btn btn-g" onclick="reqPickup()">♻ Request Pickup Now</button>
+</div>
+
+<!-- ══ CUSTOMER TRACKING ══ -->
+<div class="scr" id="s-track">
+  <div class="ph"><h1 class="ph-t">Live Tracking</h1><p class="ph-s" id="tsub">Finding nearest rider...</p></div>
+  <div style="position:relative;margin-bottom:13px;"><div id="tmap"></div><div class="mbar"><div class="mbd" id="tmap-dot"></div><span class="mbt" id="tmap-txt">Rider en route</span><span class="mbs" id="tmap-eta">ETA 4 min</span></div></div>
+  <div class="tcard">
+    <div class="ttop"><div class="tdot"></div><span class="tlbl" id="tlbl">Matching...</span><span class="teta" id="teta">~4 min</span></div>
+    <div style="display:flex;align-items:center;gap:11px;">
+      <div style="width:42px;height:42px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:1.25rem;" id="match-rider-ava">🛺</div>
+      <div><p style="font-weight:700;font-size:.87rem;" id="match-rider-name">Kwame Asante</p><p style="color:var(--gold);font-size:.7rem;">★★★★★</p><p style="font-size:.69rem;color:var(--mid);" id="match-rider-meta">4.9 · 312 pickups</p></div>
+    </div>
+  </div>
+  <div class="fnotice hidden" id="fnotice">
+    <div class="row" style="margin-bottom:9px;"><span style="font-weight:700;color:var(--gold);">⚠ Fare Adjustment</span><span class="badge by">Review</span></div>
+    <p style="font-size:.79rem;color:rgba(235,245,236,.5);margin-bottom:12px;">Rider submitted load photo. Adjusted fare: <strong style="color:var(--gold);">GH₵ 52.00</strong></p>
+    <div style="background:var(--card2);border-radius:8px;padding:18px;text-align:center;margin-bottom:12px;"><span style="font-size:1.9rem;">📸</span><p style="font-size:.69rem;color:var(--mid);margin-top:5px;">Photo from rider</p></div>
+    <div class="gap8"><button class="btn btn-g" style="flex:1;" onclick="approveFare()">✓ Approve GH₵ 52</button><button class="btn btn-sec" style="flex:0 0 auto;" onclick="declineFare()">Decline</button></div>
+  </div>
+  <div id="payment-action-wrap">
+    <!-- shown after matching -->
+  </div>
+  <button class="btn btn-red" style="margin-top:9px;" onclick="cancelPickup()">Cancel Pickup</button>
+</div>
+
+<!-- ══ CUSTOMER HISTORY ══ -->
+<div class="scr" id="s-history">
+  <div class="ph"><h1 class="ph-t">Pickup History</h1><p class="ph-s">Your past collections</p></div>
+  <div class="card" id="history-list"><div class="empty-state"><span class="es-ico">📭</span>No pickups yet</div></div>
+</div>
+
+<!-- ══ RIDER DASHBOARD ══ -->
+<div class="scr" id="s-rider">
+  <div class="ph"><p class="ph-s" id="rgreet">Good day 👋</p><h1 class="ph-t" style="color:#7DB8FF;">Rider Dashboard</h1></div>
+
+  <!-- WALLET -->
+  <div class="wallet-card">
+    <p class="wc-label">My Wallet Balance</p>
+    <p class="wc-bal" id="wallet-bal">GH₵ 0.00</p>
+    <p class="wc-sub">75% of cash jobs are auto-credited · MoMo earnings pending Hubtel</p>
+    <div class="wc-actions">
+      <button class="btn btn-g btn-sm" style="flex:1;" onclick="openDeposit()">+ Deposit</button>
+      <button class="btn btn-sec btn-sm" style="flex:1;" onclick="openWithdraw()">↑ Withdraw</button>
+    </div>
+  </div>
+
+  <div class="obar" id="obar">
+    <div class="ob-l"><h3 id="otxt">You are Offline</h3><p>Toggle to receive jobs</p></div>
+    <button class="tog" id="tog" onclick="toggleOnline()"><div class="togth"></div></button>
+  </div>
+
+  <div class="egrid">
+    <div class="ebox"><span class="en" id="earn-today">GH₵0</span><span class="el">Today</span></div>
+    <div class="ebox"><span class="en" id="earn-week">GH₵0</span><span class="el">This Week</span></div>
+    <div class="ebox"><span class="en" id="earn-jobs">0</span><span class="el">Total Jobs</span></div>
+  </div>
+
+  <div style="position:relative;margin-bottom:13px;"><div id="rmap"></div><div class="mbar"><div class="mbd b" id="rmap-dot"></div><span class="mbt" id="rmap-txt">Your location</span><span class="mbs" id="rmap-sub">Go online to receive jobs</span></div></div>
+
+  <div class="jalert hidden" id="jalert">
+    <div class="jah"><div class="jap"></div>New Pickup Request</div>
+    <p class="jaaddr" id="ja-addr">📍 123 Accra Road, East Legon</p>
+    <p class="jameta" id="ja-meta">Medium Load · 2.4 km away</p>
+    <p class="japrice" id="ja-price">GH₵ 35.20 <span class="jashare" id="ja-share">(your 75%: GH₵26.40)</span></p>
+    <p id="ja-paymethod" style="font-size:.72rem;margin-top:5px;color:var(--mid);"></p>
+    <div class="jabtns"><button class="jaacc" onclick="acceptJob()">✓ Accept</button><button class="jadec" onclick="declineJob()">✗ Skip</button></div>
+  </div>
+
+  <div class="ajcard hidden" id="ajcard">
+    <div class="row" style="margin-bottom:13px;"><span style="font-weight:700;color:#7DB8FF;">Active Pickup</span><span class="badge bb">In Progress</span></div>
+    <p style="font-size:.83rem;color:var(--mid);margin-bottom:3px;" id="aj-addr">📍 123 Accra Road, East Legon</p>
+    <p style="font-size:.83rem;color:var(--mid);margin-bottom:3px;" id="aj-detail">Medium · GH₵35.20</p>
+    <p style="font-size:.83rem;margin-bottom:13px;" id="aj-paymethod"></p>
+    <button class="btn btn-blue" style="margin-bottom:9px;" onclick="openFare()">📷 Request Fare Adjustment</button>
+    <button class="btn btn-g" onclick="completeJob()">✓ Mark Collected</button>
+  </div>
+
+  <div class="card">
+    <p class="lbl" style="margin-bottom:11px;">Transaction History</p>
+    <div id="rider-tx-list"><div class="empty-state" style="padding:20px;"><span class="es-ico" style="font-size:1.5rem;">📋</span>No transactions yet</div></div>
+  </div>
+</div>
+
+<!-- ══ RIDER EARNINGS ══ -->
+<div class="scr" id="s-earn">
+  <div class="ph"><h1 class="ph-t" style="color:#7DB8FF;">My Earnings</h1><p class="ph-s">75% of every fare is yours</p></div>
+  <div class="wallet-card" style="margin-bottom:13px;">
+    <p class="wc-label">Wallet Balance</p>
+    <p class="wc-bal" id="wallet-bal2">GH₵ 0.00</p>
+    <p class="wc-sub">Cash jobs credited immediately · MoMo via Hubtel</p>
+    <div class="wc-actions">
+      <button class="btn btn-g btn-sm" style="flex:1;" onclick="openDeposit()">+ Deposit</button>
+      <button class="btn btn-sec btn-sm" style="flex:1;" onclick="openWithdraw()">↑ Withdraw</button>
+    </div>
+  </div>
+  <div class="card">
+    <p class="lbl" style="margin-bottom:13px;">All Transactions</p>
+    <div id="earn-tx-list"><div class="empty-state"><span class="es-ico">📭</span>No transactions yet</div></div>
+  </div>
+</div>
+
+<!-- ══ ADMIN PANEL ══ -->
+<div class="scr" id="s-admin">
+  <div class="ph"><h1 class="ph-t" style="color:var(--gold);">Admin Panel</h1><p class="ph-s">WasteGo control centre</p></div>
+  <div class="adm-tabs">
+    <button class="adm-tab on" onclick="admTab('overview',this)">Overview</button>
+    <button class="adm-tab" onclick="admTab('users',this)">Users</button>
+    <button class="adm-tab" onclick="admTab('messages',this)">Messages</button>
+    <button class="adm-tab" onclick="admTab('config',this)">Config</button>
+  </div>
+
+  <div class="adm-pane on" id="ap-overview">
+    <div class="agrid">
+      <div class="astat"><p class="an" id="stat-users">0</p><p class="al">Registered Users</p></div>
+      <div class="astat"><p class="an" id="stat-riders">0</p><p class="al">Active Riders</p></div>
+      <div class="astat"><p class="an" id="stat-pickups">0</p><p class="al">Total Pickups</p></div>
+      <div class="astat"><p class="an" id="stat-rev">GH₵0</p><p class="al">Platform Revenue</p></div>
+    </div>
+    <div class="card"><p class="lbl" style="margin-bottom:13px;">📋 Recent Transactions</p><div id="adm-tx-list"><div class="empty-state"><span class="es-ico">📭</span>No transactions yet</div></div></div>
+  </div>
+
+  <div class="adm-pane" id="ap-users">
+    <input class="input" id="user-search" type="text" placeholder="🔍  Search by name or email..." oninput="renderUsers()" style="margin-bottom:12px;"/>
+    <div class="u-filter">
+      <button class="uf-btn on" onclick="setUF('all',this)">All</button>
+      <button class="uf-btn" onclick="setUF('customer',this)">Customers</button>
+      <button class="uf-btn" onclick="setUF('rider',this)">Riders</button>
+      <button class="uf-btn" onclick="setUF('banned',this)">Banned</button>
+    </div>
+    <div id="user-list"></div>
+  </div>
+
+  <div class="adm-pane" id="ap-messages">
+    <button class="btn btn-gold" style="margin-bottom:14px;" onclick="openAdminMsg(null)">✉ Send Message to User</button>
+    <p class="lbl" style="margin-bottom:10px;">Sent Messages</p>
+    <div id="adm-msg-log"><div class="empty-state"><span class="es-ico">📭</span>No messages sent yet</div></div>
+  </div>
+
+  <div class="adm-pane" id="ap-config">
     <div class="card">
-      <p class="lbl">Load Size</p>
-      <div class="sizes">
-        <div class="sz" onclick="pickSz(this,'Small',15)"><span class="si">🗑️</span><span class="sn">Small</span><span class="sp">GH₵15+</span></div>
-        <div class="sz on" onclick="pickSz(this,'Medium',28)"><span class="si">📦</span><span class="sn">Medium</span><span class="sp">GH₵28+</span></div>
-        <div class="sz" onclick="pickSz(this,'Large',45)"><span class="si">🏗️</span><span class="sn">Large</span><span class="sp">GH₵45+</span></div>
-        <div class="sz" onclick="pickSz(this,'Bulk',80)"><span class="si">🚛</span><span class="sn">Bulk</span><span class="sp">GH₵80+</span></div>
-      </div>
-      <div style="margin-top:12px;"><p class="lbl">Special Waste</p>
-        <select class="input" onchange="pickSur(this.value)">
-          <option value="0">None</option>
-          <option value="10">Hazardous Waste (+GH₵10)</option>
-          <option value="8">E-Waste / Electronics (+GH₵8)</option>
-          <option value="5">Construction Debris (+GH₵5)</option>
-        </select>
-      </div>
-    </div>
-    <div class="pbox">
-      <div class="pr"><span>Base fee</span><span id="p-base">GH₵ 28.00</span></div>
-      <div class="pr"><span>Distance (2.4 km)</span><span>GH₵ 7.20</span></div>
-      <div class="pr"><span>Surcharge</span><span id="p-sur">GH₵ 0.00</span></div>
-      <div class="pt"><span>Total Estimate</span><span id="p-tot">GH₵ 35.20</span></div>
-    </div>
-    <button class="btn btn-g" onclick="reqPickup()">♻ Request Pickup Now</button>
-  </div>
-
-  <!-- ══════════ CUSTOMER TRACKING ══════════ -->
-  <div class="scr" id="s-track">
-    <div class="ph"><h1 class="ph-t">Live Tracking</h1><p class="ph-s" id="tsub">Finding nearest rider...</p></div>
-    <div style="position:relative;margin-bottom:13px;">
-      <div id="tmap"></div>
-      <div class="mbar"><div class="mbd" id="tmap-dot"></div><span class="mbt" id="tmap-txt">Rider en route</span><span class="mbs" id="tmap-eta">ETA 4 min</span></div>
-    </div>
-    <div class="tcard">
-      <div class="ttop"><div class="tdot"></div><span class="tlbl" id="tlbl">Matching...</span><span class="teta" id="teta">~4 min</span></div>
-      <div style="display:flex;align-items:center;gap:11px;">
-        <div style="width:42px;height:42px;border-radius:50%;background:var(--g);display:flex;align-items:center;justify-content:center;font-size:1.25rem;">🛺</div>
-        <div><p style="font-weight:700;font-size:.88rem;color:var(--wh);">Kwame Asante</p><p style="color:var(--gold);font-size:.7rem;">★★★★★</p><p style="font-size:.7rem;color:var(--mid);">4.9 · 312 pickups · #KW-042</p></div>
-      </div>
-    </div>
-    <div class="fnotice hidden" id="fnotice">
-      <div class="row" style="margin-bottom:9px;"><span style="font-weight:700;color:var(--gold);">⚠ Fare Adjustment</span><span class="badge by">Review</span></div>
-      <p style="font-size:.8rem;color:rgba(237,247,237,.5);margin-bottom:12px;">Rider submitted load photo. Adjusted fare: <strong style="color:var(--gold);">GH₵ 52.00</strong></p>
-      <div style="background:var(--card2);border-radius:8px;padding:18px;text-align:center;margin-bottom:12px;"><span style="font-size:1.9rem;">📸</span><p style="font-size:.7rem;color:var(--mid);margin-top:5px;">Photo from rider</p></div>
-      <div class="gap8"><button class="btn btn-g" style="flex:1;" onclick="approveFare()">✓ Approve GH₵ 52</button><button class="btn btn-sec" style="flex:0 0 auto;" onclick="declineFare()">Decline</button></div>
-    </div>
-    <!-- User inbox messages shown here -->
-    <div id="user-msgs-wrap" class="hidden">
-      <p class="lbl" style="margin-bottom:8px;">📬 Messages from WasteGo</p>
-      <div id="user-msgs-list"></div>
-    </div>
-    <button class="btn btn-sec" style="margin-bottom:9px;" onclick="openPay()">💳 Pay with MoMo</button>
-    <button class="btn btn-red" onclick="cancelPickup()">Cancel Pickup</button>
-  </div>
-
-  <!-- ══════════ CUSTOMER HISTORY ══════════ -->
-  <div class="scr" id="s-history">
-    <div class="ph"><h1 class="ph-t">Pickup History</h1><p class="ph-s">Your recent collections</p></div>
-    <div class="card">
-      <div class="hi"><div class="hiico">♻</div><div style="flex:1;"><p class="hit">East Legon Pickup</p><p class="him">Medium · May 2, 2025 · Kwame A.</p></div><div><p class="hia">GH₵35.20</p><span class="badge bg" style="font-size:.58rem;">Done</span></div></div>
-      <div class="hi"><div class="hiico">♻</div><div style="flex:1;"><p class="hit">Adabraka Pickup</p><p class="him">Large · Apr 28 · Yaw B.</p></div><div><p class="hia">GH₵56.40</p><span class="badge bg" style="font-size:.58rem;">Done</span></div></div>
-      <div class="hi"><div class="hiico">♻</div><div style="flex:1;"><p class="hit">Osu Pickup</p><p class="him">Small · Apr 22 · Ama K.</p></div><div><p class="hia">GH₵22.80</p><span class="badge bg" style="font-size:.58rem;">Done</span></div></div>
-      <div class="hi" style="border-bottom:none;"><div class="hiico">♻</div><div style="flex:1;"><p class="hit">Tema Bulk</p><p class="him">Bulk · Apr 15 · Kofi M.</p></div><div><p class="hia">GH₵95.00</p><span class="badge br" style="font-size:.58rem;">Cancelled</span></div></div>
-    </div>
-    <div class="card" style="display:flex;justify-content:space-around;text-align:center;">
-      <div><p class="lbl">Total Spent</p><p style="font-family:'Fraunces',serif;font-size:1.45rem;font-weight:700;color:var(--g);">GH₵114.40</p></div>
-      <div style="width:1px;background:var(--bd);"></div>
-      <div><p class="lbl">Pickups</p><p style="font-family:'Fraunces',serif;font-size:1.45rem;font-weight:700;color:var(--wh);">3</p></div>
+      <p class="lbl" style="margin-bottom:13px;">💰 Pricing — Commission by Load Size</p>
+      <div class="crow"><div class="clw"><h4>Small Load Commission</h4><p>Platform keeps (GH₵)</p></div><input class="cinp" type="number" value="3.75" id="cfg-small"/></div>
+      <div class="crow"><div class="clw"><h4>Medium Load Commission</h4><p>Platform keeps (GH₵)</p></div><input class="cinp" type="number" value="7.00" id="cfg-medium"/></div>
+      <div class="crow"><div class="clw"><h4>Large Load Commission</h4><p>Platform keeps (GH₵)</p></div><input class="cinp" type="number" value="11.25" id="cfg-large"/></div>
+      <div class="crow"><div class="clw"><h4>Bulk Load Commission</h4><p>Platform keeps (GH₵)</p></div><input class="cinp" type="number" value="20.00" id="cfg-bulk"/></div>
+      <div class="crow"><div class="clw"><h4>Distance Rate</h4><p>GH₵ per km</p></div><input class="cinp" type="number" value="3.00" step="0.5" id="cfg-dist"/></div>
+      <button class="btn btn-gold" style="margin-top:13px;" onclick="saveCfg()">💾 Save Config</button>
     </div>
   </div>
+</div>
 
-  <!-- ══════════ RIDER DASHBOARD ══════════ -->
-  <div class="scr" id="s-rider">
-    <div class="ph"><p class="ph-s" id="rgreet">Good day 👋</p><h1 class="ph-t" style="color:#90C4FF;">Rider Dashboard</h1></div>
-    <div class="obar" id="obar">
-      <div class="ob-l"><h3 id="otxt">You are Offline</h3><p>Toggle to receive jobs</p></div>
-      <button class="tog" id="tog" onclick="toggleOnline()"><div class="togth"></div></button>
+<!-- ══ PROFILE ══ -->
+<div class="scr" id="s-profile">
+  <div class="ph"><h1 class="ph-t">My Profile</h1></div>
+  <div class="phdr">
+    <div class="prof-pic-wrap">
+      <div class="prof-pic" id="prof-pic">🏠</div>
+      <div class="prof-pic-edit" onclick="document.getElementById('pic-input').click()">✏️</div>
+      <input type="file" id="pic-input" accept="image/*" style="display:none;" onchange="handlePicUpload(event)"/>
     </div>
-    <div class="egrid">
-      <div class="ebox"><span class="en">GH₵84</span><span class="el">Today</span></div>
-      <div class="ebox"><span class="en">GH₵479</span><span class="el">This Week</span></div>
-      <div class="ebox"><span class="en">GH₵1,820</span><span class="el">Month</span></div>
-    </div>
-    <div style="position:relative;margin-bottom:13px;">
-      <div id="rmap"></div>
-      <div class="mbar"><div class="mbd b" id="rmap-dot"></div><span class="mbt" id="rmap-txt">Your location</span><span class="mbs" id="rmap-sub">Go online to receive jobs</span></div>
-    </div>
-    <div class="jalert hidden" id="jalert">
-      <div class="jah"><div class="jap"></div>New Pickup Request</div>
-      <p class="jaaddr">📍 123 Accra Road, East Legon</p>
-      <p class="jameta">Medium Load · 2.4 km away · No surcharge</p>
-      <p class="japrice">GH₵ 35.20 <span class="jashare">(your 75%: GH₵26.40)</span></p>
-      <div class="jabtns"><button class="jaacc" onclick="acceptJob()">✓ Accept</button><button class="jadec" onclick="declineJob()">✗ Skip</button></div>
-    </div>
-    <div class="ajcard hidden" id="ajcard">
-      <div class="row" style="margin-bottom:13px;"><span style="font-weight:700;color:#90C4FF;">Active Pickup</span><span class="badge bb">In Progress</span></div>
-      <p style="font-size:.84rem;color:var(--mid);margin-bottom:3px;">📍 123 Accra Road, East Legon</p>
-      <p style="font-size:.84rem;color:var(--mid);margin-bottom:13px;">Medium · GH₵35.20 → Your share: GH₵26.40</p>
-      <button class="btn btn-blue" style="margin-bottom:9px;" onclick="openFare()">📷 Request Fare Adjustment</button>
-      <button class="btn btn-g" onclick="completeJob()">✓ Mark Collected</button>
-    </div>
-    <div class="card">
-      <p class="lbl" style="margin-bottom:11px;">Recent Jobs</p>
-      <div class="hi"><div class="hiico" style="background:rgba(68,136,255,.1);border-color:rgba(68,136,255,.12);">🛺</div><div style="flex:1;"><p class="hit">East Legon → Dump A</p><p class="him">Medium · Today 9:24 AM</p></div><p class="hia" style="color:#90C4FF;">GH₵26.40</p></div>
-      <div class="hi"><div class="hiico" style="background:rgba(68,136,255,.1);border-color:rgba(68,136,255,.12);">🛺</div><div style="flex:1;"><p class="hit">Osu → Dump B</p><p class="him">Small · Today 7:12 AM</p></div><p class="hia" style="color:#90C4FF;">GH₵16.80</p></div>
-      <div class="hi" style="border-bottom:none;"><div class="hiico" style="background:rgba(68,136,255,.1);border-color:rgba(68,136,255,.12);">🛺</div><div style="flex:1;"><p class="hit">Adabraka → Dump A</p><p class="him">Large · Yesterday</p></div><p class="hia" style="color:#90C4FF;">GH₵40.80</p></div>
+    <div style="flex:1;">
+      <p class="pname" id="pname">User</p>
+      <p class="prole customer" id="prole">Customer</p>
+      <p class="pemail" id="pemail">user@example.com</p>
+      <p class="pphone" id="pphone"></p>
     </div>
   </div>
-
-  <!-- ══════════ RIDER EARNINGS ══════════ -->
-  <div class="scr" id="s-earn">
-    <div class="ph"><h1 class="ph-t" style="color:#90C4FF;">My Earnings</h1><p class="ph-s">75% of every fare is yours</p></div>
-    <div class="card">
-      <p class="lbl" style="margin-bottom:14px;">This Week</p>
-      <div style="display:flex;flex-direction:column;gap:11px;">
-        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Monday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 84</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:66%;background:linear-gradient(90deg,var(--blue),#90C4FF);border-radius:4px;"></div></div></div>
-        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Tuesday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 62</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:49%;background:linear-gradient(90deg,var(--blue),#90C4FF);border-radius:4px;"></div></div></div>
-        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Wednesday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 110</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:87%;background:linear-gradient(90deg,var(--blue),#90C4FF);border-radius:4px;"></div></div></div>
-        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Thursday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 95</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:75%;background:linear-gradient(90deg,var(--blue),#90C4FF);border-radius:4px;"></div></div></div>
-        <div><div class="row" style="margin-bottom:5px;"><span style="font-size:.8rem;color:var(--mid);">Friday</span><span style="font-size:.8rem;color:var(--wh);">GH₵ 128</span></div><div style="height:7px;background:var(--card2);border-radius:4px;overflow:hidden;"><div style="height:100%;width:100%;background:linear-gradient(90deg,var(--blue),#90C4FF);border-radius:4px;"></div></div></div>
-      </div>
-      <div class="row" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--bd);"><span style="font-size:.8rem;color:var(--mid);">Week Total</span><span style="font-family:'Fraunces',serif;font-size:1.55rem;font-weight:700;color:#90C4FF;">GH₵ 479</span></div>
-    </div>
+  <div class="card">
+    <p class="lbl">Mobile Money Wallet</p>
+    <div class="row" style="margin-top:8px;margin-bottom:11px;"><div><p style="font-weight:700;color:var(--wh);">MTN MoMo</p><p style="font-size:.72rem;color:var(--mid);" id="pmomo">—</p></div><span class="badge bg">Linked</span></div>
+    <button class="btn btn-sec" style="padding:10px;font-size:.79rem;">+ Add Another Network</button>
   </div>
-
-  <!-- ══════════ ADMIN PANEL ══════════ -->
-  <div class="scr" id="s-admin">
-    <div class="ph"><h1 class="ph-t" style="color:var(--gold);">Admin Panel</h1><p class="ph-s">WasteGo control centre</p></div>
-
-    <div class="adm-tabs">
-      <button class="adm-tab on" onclick="admTab('overview',this)">Overview</button>
-      <button class="adm-tab" onclick="admTab('users',this)">Users</button>
-      <button class="adm-tab" onclick="admTab('messages',this)">Messages</button>
-      <button class="adm-tab" onclick="admTab('config',this)">Config</button>
-    </div>
-
-    <!-- OVERVIEW -->
-    <div class="adm-pane on" id="ap-overview">
-      <div class="agrid">
-        <div class="astat"><p class="an" id="stat-pickups">284</p><p class="al">Total Pickups</p></div>
-        <div class="astat"><p class="an" id="stat-riders">47</p><p class="al">Active Riders</p></div>
-        <div class="astat"><p class="an" style="font-size:1.25rem;" id="stat-rev">GH₵8,240</p><p class="al">Revenue</p></div>
-        <div class="astat"><p class="an" style="font-size:1.25rem;" id="stat-pay">GH₵24,720</p><p class="al">Rider Payouts</p></div>
-      </div>
-      <div class="card">
-        <p class="lbl" style="margin-bottom:13px;">📋 Recent Trips</p>
-        <table class="ttbl"><thead><tr><th>Customer</th><th>Rider</th><th>Size</th><th>Fare</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr><td>Ama K.</td><td>Kwame A.</td><td>Med</td><td>GH₵35</td><td><span class="badge bg">Done</span></td></tr>
-          <tr><td>Yaw B.</td><td>Kofi M.</td><td>Large</td><td>GH₵56</td><td><span class="badge bg">Done</span></td></tr>
-          <tr><td>Akua L.</td><td>Yaw B.</td><td>Small</td><td>GH₵22</td><td><span class="badge bb">Active</span></td></tr>
-          <tr><td>Kojo P.</td><td>—</td><td>Bulk</td><td>GH₵95</td><td><span class="badge by">Pending</span></td></tr>
-        </tbody></table>
-      </div>
-    </div>
-
-    <!-- USERS -->
-    <div class="adm-pane" id="ap-users">
-      <input class="input usearch" id="user-search" type="text" placeholder="🔍  Search by name or email..." oninput="renderUsers()"/>
-      <div class="u-filter">
-        <button class="uf-btn on" onclick="setUFilter('all',this)">All</button>
-        <button class="uf-btn" onclick="setUFilter('customer',this)">Customers</button>
-        <button class="uf-btn" onclick="setUFilter('rider',this)">Riders</button>
-        <button class="uf-btn" onclick="setUFilter('banned',this)">Banned</button>
-      </div>
-      <div id="user-list"></div>
-    </div>
-
-    <!-- MESSAGES -->
-    <div class="adm-pane" id="ap-messages">
-      <button class="btn btn-gold" style="margin-bottom:14px;" onclick="openAdminMsg()">✉ Send Message to User</button>
-      <p class="lbl" style="margin-bottom:10px;">Sent Messages</p>
-      <div id="adm-msg-log">
-        <div class="empty-state"><span class="es-ico">📭</span>No messages sent yet</div>
-      </div>
-    </div>
-
-    <!-- CONFIG -->
-    <div class="adm-pane" id="ap-config">
-      <div class="card">
-        <p class="lbl" style="margin-bottom:13px;">💰 Pricing Configuration</p>
-        <div class="crow"><div class="clw"><h4>Base Fee (Small)</h4><p>Flat minimum per pickup</p></div><input class="cinp" type="number" value="15" id="cfg-b"/></div>
-        <div class="crow"><div class="clw"><h4>Distance Rate</h4><p>GH₵ per kilometre</p></div><input class="cinp" type="number" value="3.00" step="0.5" id="cfg-d"/></div>
-        <div class="crow"><div class="clw"><h4>Platform Commission %</h4><p>Kept by WasteGo</p></div><input class="cinp" type="number" value="25" id="cfg-c"/></div>
-        <div class="crow"><div class="clw"><h4>Surge Multiplier</h4><p>Peak hour factor</p></div><input class="cinp" type="number" value="1.0" step="0.1" id="cfg-s"/></div>
-        <button class="btn btn-gold" style="margin-top:13px;" onclick="saveCfg()">💾 Save Config</button>
-      </div>
-    </div>
+  <div class="card">
+    <p class="lbl" style="margin-bottom:7px;">Account</p>
+    <div class="srow" onclick="openEditProfile()"><div class="sico">✏️</div><span class="slbl">Edit Profile</span><span class="sarr">›</span></div>
+    <div class="srow" onclick="openSupport()"><div class="sico">💬</div><span class="slbl">Contact Support</span><span class="sarr">›</span></div>
+    <div class="srow" onclick="openInbox()"><div class="sico">📬</div><span class="slbl">My Messages <span id="inbox-dot" class="badge br" style="display:none;font-size:.55rem;">New</span></span><span class="sarr">›</span></div>
+    <div class="srow" onclick="showInstall()"><div class="sico">📲</div><span class="slbl">Install App</span><span class="sarr">›</span></div>
   </div>
-
-  <!-- ══════════ PROFILE ══════════ -->
-  <div class="scr" id="s-profile">
-    <div class="ph"><h1 class="ph-t">My Profile</h1></div>
-    <!-- Profile header with picture -->
-    <div class="phdr">
-      <div class="prof-pic-wrap">
-        <div class="prof-pic" id="prof-pic">🏠</div>
-        <div class="prof-pic-edit" onclick="openEditProfile()" title="Edit profile picture">✏️</div>
-        <input type="file" id="pic-input" accept="image/*" style="display:none;" onchange="handlePicUpload(event)"/>
-      </div>
-      <div>
-        <p class="pname" id="pname">User</p>
-        <p class="prole c" id="prole">Customer</p>
-        <p class="pemail" id="pemail">user@example.com</p>
-        <p style="font-size:.7rem;color:var(--mid);margin-top:4px;" id="pphone">+233 24 000 1234</p>
-      </div>
-    </div>
-    <!-- MoMo -->
-    <div class="card">
-      <p class="lbl">Mobile Money Wallet</p>
-      <div class="row" style="margin-top:8px;margin-bottom:11px;">
-        <div><p style="font-weight:700;color:var(--wh);">MTN MoMo</p><p style="font-size:.73rem;color:var(--mid);" id="pmomo">+233 24 000 1234</p></div>
-        <span class="badge bg">Linked</span>
-      </div>
-      <button class="btn btn-sec" style="padding:10px;font-size:.8rem;">+ Add Another Network</button>
-    </div>
-    <!-- Settings -->
-    <div class="card">
-      <p class="lbl" style="margin-bottom:7px;">Account</p>
-      <div class="srow" onclick="openEditProfile()"><div class="sico">✏️</div><span class="slbl">Edit Profile</span><span class="sarr">›</span></div>
-      <div class="srow" onclick="openSupport()"><div class="sico">💬</div><span class="slbl">Contact Support</span><span class="sarr">›</span></div>
-      <div class="srow" onclick="openInbox()"><div class="sico">📬</div><span class="slbl">My Messages <span id="msg-count-badge" style="display:none;" class="badge br">New</span></span><span class="sarr">›</span></div>
-      <div class="srow" onclick="showInstall()"><div class="sico">📲</div><span class="slbl">Install App</span><span class="sarr">›</span></div>
-      <div class="srow" onclick="alert('Notification settings coming soon')"><div class="sico">🔔</div><span class="slbl">Notifications</span><span class="sarr">›</span></div>
-    </div>
-    <button class="btn btn-red" onclick="logout()">Sign Out</button>
-  </div>
+  <button class="btn btn-red" onclick="logout()">Sign Out</button>
+</div>
 
 </div><!-- /main -->
 
-<!-- BOTTOM NAV -->
 <div id="botnav"></div>
 
-<!-- ══════ MoMo PAYMENT MODAL ══════ -->
+<!-- ══ MOMO PAYMENT MODAL ══ -->
 <div class="mbg" id="pay-modal">
   <div class="msh">
     <div class="shdl"></div>
     <p class="sht">Pay with MoMo</p>
-    <p class="sht-sub">Total: <strong style="color:var(--g);">GH₵ 35.20</strong></p>
-    <div class="mo sel" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.85rem;">MTN MoMo</p><p style="font-size:.7rem;color:var(--mid);">+233 24 000 1234</p></div><span class="mo-chk">✓</span></div>
-    <div class="mo" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.85rem;">Vodafone Cash</p><p style="font-size:.7rem;color:var(--mid);">+233 20 000 5678</p></div><span class="mo-chk">✓</span></div>
-    <div class="mo" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.85rem;">AirtelTigo Money</p><p style="font-size:.7rem;color:var(--mid);">+233 26 000 9999</p></div><span class="mo-chk">✓</span></div>
+    <p class="sht-sub">Total: <strong style="color:var(--g);" id="pm-total">GH₵ 35.20</strong></p>
+    <div class="mo sel" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.84rem;">MTN MoMo</p><p style="font-size:.7rem;color:var(--mid);" id="pm-momo-num">—</p></div><span class="mo-chk">✓</span></div>
+    <div class="mo" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.84rem;">Vodafone Cash</p><p style="font-size:.7rem;color:var(--mid);">+233 20 000 5678</p></div><span class="mo-chk">✓</span></div>
+    <div class="mo" onclick="selM(this)"><span style="font-size:1.4rem;">📱</span><div><p style="font-weight:700;font-size:.84rem;">AirtelTigo Money</p><p style="font-size:.7rem;color:var(--mid);">+233 26 000 9999</p></div><span class="mo-chk">✓</span></div>
     <button class="btn btn-g" style="margin-top:14px;" id="paybtn" onclick="doPay()">Confirm Payment</button>
     <button class="btn btn-sec" style="margin-top:9px;" onclick="closePay()">Cancel</button>
   </div>
 </div>
 
-<!-- ══════ FARE ADJUSTMENT MODAL ══════ -->
+<!-- ══ CASH CONFIRM MODAL ══ -->
+<div class="cmbg" id="cash-modal">
+  <div class="cmsh">
+    <div class="shdl"></div>
+    <p class="sht" style="text-align:center;">Confirm Cash Payment</p>
+    <p style="font-size:.79rem;color:var(--mid);text-align:center;margin-bottom:14px;">Hand this amount directly to the rider. Platform commission will be deducted from rider's wallet.</p>
+    <div class="cash-confirm">
+      <p style="font-size:.71rem;color:var(--mid);letter-spacing:.1em;text-transform:uppercase;">Amount to pay rider</p>
+      <p class="cc-amount" id="cc-amount">GH₵ 35.20</p>
+      <p class="cc-size" id="cc-size">Medium Load</p>
+      <div class="cc-split">
+        <div class="cc-split-item"><p class="cc-split-val" id="cc-rider" style="color:var(--g);">GH₵ 26.40</p><p class="cc-split-lbl">Rider earns (75%)</p></div>
+        <div style="width:1px;background:rgba(255,140,0,.2);"></div>
+        <div class="cc-split-item"><p class="cc-split-val" id="cc-comm" style="color:var(--orange);">GH₵ 8.80</p><p class="cc-split-lbl">Platform (25%)</p></div>
+      </div>
+      <p class="cc-note" style="margin-top:12px;">Commission will be automatically deducted from the rider's WasteGo wallet after you confirm.</p>
+    </div>
+    <button class="btn btn-orange" style="margin-bottom:9px;" onclick="confirmCash()">💵 I've Paid Cash — Confirm</button>
+    <button class="btn btn-sec" onclick="closeCash()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ FARE ADJUSTMENT MODAL ══ -->
 <div class="cmbg" id="fare-modal">
   <div class="cmsh">
     <div class="shdl"></div>
     <p class="sht" style="text-align:center;">Fare Adjustment</p>
-    <p style="font-size:.8rem;color:var(--mid);text-align:center;margin-bottom:4px;">Upload a load photo and request the adjusted fare. Customer must approve.</p>
-    <div class="uz" onclick="fakeUp()"><span class="uz-i" id="uzi">📷</span><p id="uzt">Tap to upload photo</p></div>
+    <p style="font-size:.79rem;color:var(--mid);text-align:center;margin-bottom:4px;">Upload photo of actual load. Customer must approve before pickup continues.</p>
+    <div class="uz" onclick="fakeUp()" style="border:2px dashed var(--bd);border-radius:12px;padding:26px;text-align:center;cursor:pointer;margin:13px 0;">
+      <span style="font-size:2.3rem;display:block;margin-bottom:7px;" id="uzi">📷</span>
+      <p style="font-size:.77rem;color:var(--mid);" id="uzt">Tap to upload photo</p>
+    </div>
     <div class="fw"><label class="fl">Adjusted Fare (GH₵)</label><input class="input" type="number" value="52" id="nfare"/></div>
     <button class="btn btn-g" onclick="submitFare()">Send to Customer</button>
     <button class="btn btn-sec" style="margin-top:9px;" onclick="closeFare()">Cancel</button>
   </div>
 </div>
 
-<!-- ══════ EDIT PROFILE MODAL ══════ -->
+<!-- ══ DEPOSIT MODAL ══ -->
+<div class="cmbg" id="deposit-modal">
+  <div class="cmsh">
+    <div class="shdl"></div>
+    <p class="sht">Deposit to Wallet</p>
+    <p class="sht-sub">Add funds via Mobile Money</p>
+    <p class="lbl" style="margin-bottom:9px;">Select amount</p>
+    <div class="deposit-amts" id="deposit-amts">
+      <div class="da" onclick="pickDeposit(this,20)"><p class="da-amt">GH₵20</p><p class="da-lbl">Quick add</p></div>
+      <div class="da" onclick="pickDeposit(this,50)"><p class="da-amt">GH₵50</p><p class="da-lbl">Popular</p></div>
+      <div class="da" onclick="pickDeposit(this,100)"><p class="da-amt">GH₵100</p><p class="da-lbl">Best value</p></div>
+      <div class="da" onclick="pickDeposit(this,200)"><p class="da-amt">GH₵200</p><p class="da-lbl">Power up</p></div>
+      <div class="da" onclick="pickDeposit(this,500)"><p class="da-amt">GH₵500</p><p class="da-lbl">Premium</p></div>
+      <div class="da" id="da-custom" onclick="focusCustom()"><p class="da-amt">Other</p><p class="da-lbl">Custom</p></div>
+    </div>
+    <div class="fw"><label class="fl">Or enter custom amount (GH₵)</label><input class="input" id="custom-deposit" type="number" placeholder="e.g. 75" min="5"/></div>
+    <div class="fw"><label class="fl">Pay via</label>
+      <select class="input" id="deposit-network"><option value="mtn">MTN MoMo</option><option value="vodafone">Vodafone Cash</option><option value="airteltigo">AirtelTigo Money</option></select>
+    </div>
+    <button class="btn btn-g" id="deposit-btn" onclick="doDeposit()">Deposit Now</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closeDeposit()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ WITHDRAW MODAL ══ -->
+<div class="cmbg" id="withdraw-modal">
+  <div class="cmsh">
+    <div class="shdl"></div>
+    <p class="sht">Withdraw Earnings</p>
+    <p class="sht-sub">Send balance to your MoMo account</p>
+    <div style="background:var(--card2);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px;text-align:center;">
+      <p style="font-size:.69rem;color:var(--mid);margin-bottom:5px;">Available balance</p>
+      <p style="font-family:'Fraunces',serif;font-size:2rem;font-weight:700;color:var(--g);" id="wd-available">GH₵ 0.00</p>
+    </div>
+    <div class="fw"><label class="fl">Withdraw Amount (GH₵)</label><input class="input" id="wd-amount" type="number" placeholder="Amount to withdraw" min="5"/><span class="fe" id="wd-amount-e">Enter a valid amount</span></div>
+    <div class="fw"><label class="fl">Send to MoMo Network</label>
+      <select class="input" id="wd-network"><option value="mtn">MTN MoMo</option><option value="vodafone">Vodafone Cash</option><option value="airteltigo">AirtelTigo Money</option></select>
+    </div>
+    <button class="btn btn-g" onclick="doWithdraw()">Withdraw</button>
+    <button class="btn btn-sec" style="margin-top:9px;" onclick="closeWithdraw()">Cancel</button>
+  </div>
+</div>
+
+<!-- ══ EDIT PROFILE MODAL ══ -->
 <div class="mbg" id="edit-profile-modal">
   <div class="msh">
     <div class="shdl"></div>
     <p class="sht">Edit Profile</p>
-    <p class="sht-sub">Update your personal information</p>
-
-    <!-- Profile picture upload -->
-    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:18px;">
-      <div class="prof-pic" id="edit-pic-preview" style="width:80px;height:80px;font-size:2rem;margin-bottom:10px;cursor:pointer;" onclick="document.getElementById('pic-input').click()">🏠</div>
-      <button class="btn btn-sec btn-sm" onclick="document.getElementById('pic-input').click()" style="width:auto;">📷 Change Photo</button>
+    <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:16px;">
+      <div class="prof-pic" id="ep-pic" style="width:74px;height:74px;font-size:1.9rem;margin-bottom:10px;cursor:pointer;" onclick="document.getElementById('pic-input').click()">🏠</div>
+      <button class="btn btn-sec btn-sm" style="width:auto;" onclick="document.getElementById('pic-input').click()">📷 Change Photo</button>
     </div>
-
-    <div class="fw"><label class="fl">Full Name</label><input class="input" id="ep-name" type="text" placeholder="Your full name"/><span class="fe" id="ep-name-e">Name is required</span></div>
-    <div class="fw"><label class="fl">Email Address</label><input class="input" id="ep-email" type="email" placeholder="you@example.com"/><span class="fe" id="ep-email-e">Enter a valid email</span></div>
-    <div class="fw"><label class="fl">Phone Number</label><input class="input" id="ep-phone" type="tel" placeholder="+233 24 000 0000"/><span class="fe" id="ep-phone-e">Enter a valid phone number</span></div>
-    <div class="fw"><label class="fl">MoMo Number</label><input class="input" id="ep-momo" type="tel" placeholder="+233 24 000 0000"/></div>
+    <div class="fw"><label class="fl">Full Name</label><input class="input" id="ep-name" type="text"/><span class="fe" id="ep-name-e">Name required</span></div>
+    <div class="fw"><label class="fl">Email Address</label><input class="input" id="ep-email" type="email"/><span class="fe" id="ep-email-e">Valid email required</span></div>
+    <div class="fw"><label class="fl">Phone Number</label><input class="input" id="ep-phone" type="tel"/><span class="fe" id="ep-phone-e">Valid phone required</span></div>
     <button class="btn btn-g" id="ep-save-btn" onclick="saveProfile()">Save Changes</button>
     <button class="btn btn-sec" style="margin-top:9px;" onclick="closeEditProfile()">Cancel</button>
   </div>
 </div>
 
-<!-- ══════ SUPPORT MODAL ══════ -->
+<!-- ══ SUPPORT MODAL ══ -->
 <div class="mbg" id="support-modal">
   <div class="msh">
     <div class="shdl"></div>
     <p class="sht">Contact Support</p>
-    <p class="sht-sub">How can we help you today?</p>
-
-    <div id="support-home">
-      <div class="support-option" onclick="openSupportChat()">
-        <div class="so-ico" style="background:rgba(0,200,83,.12);">💬</div>
-        <div><p class="so-title">Live Chat <span class="support-tag tag-live">Live</span></p><p class="so-desc">Chat with our support team now</p></div>
-        <span class="so-arr">›</span>
-      </div>
-      <div class="support-option" onclick="openSupportTicket()">
-        <div class="so-ico" style="background:rgba(68,136,255,.12);">📧</div>
-        <div><p class="so-title">Send a Ticket <span class="support-tag tag-fast">24h</span></p><p class="so-desc">Describe your issue in detail</p></div>
-        <span class="so-arr">›</span>
-      </div>
-      <div class="support-option" onclick="alert('Calling +233 30 295 0000...')">
-        <div class="so-ico" style="background:rgba(255,214,0,.1);">📞</div>
-        <div><p class="so-title">Call Support</p><p class="so-desc">+233 30 295 0000 · Mon–Sat 7am–8pm</p></div>
-        <span class="so-arr">›</span>
-      </div>
-      <div class="support-option" onclick="openFAQ()">
-        <div class="so-ico" style="background:rgba(255,68,68,.08);">❓</div>
-        <div><p class="so-title">FAQ</p><p class="so-desc">Quick answers to common questions</p></div>
-        <span class="so-arr">›</span>
-      </div>
+    <div id="sup-home">
+      <div class="support-opt" onclick="openSupportChat()"><div class="so-ico" style="background:var(--gdim);">💬</div><div><p class="so-title">Live Chat <span class="stag stag-live">Live</span></p><p class="so-desc">Chat with our team now</p></div><span style="margin-left:auto;color:var(--mid);">›</span></div>
+      <div class="support-opt" onclick="openTicket()"><div class="so-ico" style="background:rgba(61,139,255,.1);">📧</div><div><p class="so-title">Submit Ticket</p><p class="so-desc">Describe your issue in detail</p></div><span style="margin-left:auto;color:var(--mid);">›</span></div>
+      <div class="support-opt" onclick="openFAQ()"><div class="so-ico" style="background:rgba(255,214,0,.08);">❓</div><div><p class="so-title">FAQ</p><p class="so-desc">Quick answers to common questions</p></div><span style="margin-left:auto;color:var(--mid);">›</span></div>
+      <div class="support-opt" onclick="alert('Calling +233 30 295 0000...')"><div class="so-ico" style="background:rgba(255,68,68,.08);">📞</div><div><p class="so-title">Call Us</p><p class="so-desc">+233 30 295 0000 · Mon–Sat 7am–8pm</p></div><span style="margin-left:auto;color:var(--mid);">›</span></div>
     </div>
-
-    <!-- Live Chat -->
-    <div id="support-chat" style="display:none;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--bd);">
-        <button class="btn btn-sec btn-sm" style="width:auto;" onclick="showSupportHome()">← Back</button>
-        <span style="font-size:.85rem;font-weight:700;color:var(--wh);">Live Chat</span>
-        <span class="badge bg" style="margin-left:auto;">Online</span>
-      </div>
-      <div class="msg-thread" id="support-thread">
-        <div style="align-self:flex-start;">
-          <div class="msg-b recv">Hi! Welcome to WasteGo Support 👋 How can I help you today?</div>
-          <p class="msg-meta">WasteGo Support · just now</p>
-        </div>
-      </div>
-      <div class="msg-row">
-        <textarea class="msg-ta" id="sup-msg" placeholder="Type your message..." rows="1"></textarea>
-        <button class="msg-send" onclick="sendSupportMsg()">➤</button>
-      </div>
+    <div id="sup-chat" style="display:none;">
+      <div class="row" style="margin-bottom:13px;padding-bottom:11px;border-bottom:1px solid var(--bd);"><button class="btn btn-sec btn-sm" style="width:auto;" onclick="showSupHome()">← Back</button><span style="font-size:.84rem;font-weight:700;">Live Chat</span><span class="badge bg">Online</span></div>
+      <div class="msg-thread" id="sup-thread"><div style="align-self:flex-start;"><div class="msg-b recv">Hi! Welcome to WasteGo Support 👋 How can I help you?</div><p class="msg-meta">Support · just now</p></div></div>
+      <div class="msg-row"><textarea class="msg-ta" id="sup-msg" placeholder="Type your message..." rows="1"></textarea><button class="msg-send" onclick="sendSupMsg()">➤</button></div>
     </div>
-
-    <!-- Ticket Form -->
-    <div id="support-ticket" style="display:none;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-        <button class="btn btn-sec btn-sm" style="width:auto;" onclick="showSupportHome()">← Back</button>
-        <span style="font-size:.85rem;font-weight:700;color:var(--wh);">Submit Ticket</span>
-      </div>
-      <div class="fw"><label class="fl">Subject</label>
-        <select class="input" id="ticket-subject">
-          <option value="">Select subject...</option>
-          <option>Payment Issue</option>
-          <option>Pickup Not Completed</option>
-          <option>Rider Complaint</option>
-          <option>Account Problem</option>
-          <option>Pricing Dispute</option>
-          <option>Other</option>
-        </select>
-        <span class="fe" id="ticket-subject-e">Please select a subject</span>
-      </div>
-      <div class="fw"><label class="fl">Description</label>
-        <textarea class="input" id="ticket-body" placeholder="Describe your issue in detail..." style="min-height:100px;resize:vertical;"></textarea>
-        <span class="fe" id="ticket-body-e">Please describe your issue</span>
-      </div>
+    <div id="sup-ticket" style="display:none;">
+      <div class="row" style="margin-bottom:13px;"><button class="btn btn-sec btn-sm" style="width:auto;" onclick="showSupHome()">← Back</button><span style="font-size:.84rem;font-weight:700;">Submit Ticket</span></div>
+      <div class="fw"><label class="fl">Subject</label><select class="input" id="tick-sub"><option value="">Select subject...</option><option>Payment Issue</option><option>Pickup Not Completed</option><option>Rider Complaint</option><option>Account Problem</option><option>Pricing Dispute</option><option>Other</option></select><span class="fe" id="tick-sub-e">Select a subject</span></div>
+      <div class="fw"><label class="fl">Description</label><textarea class="input" id="tick-body" placeholder="Describe your issue..."></textarea><span class="fe" id="tick-body-e">Please describe your issue (min 10 chars)</span></div>
       <button class="btn btn-g" onclick="submitTicket()">Submit Ticket</button>
     </div>
-
-    <!-- FAQ -->
-    <div id="support-faq" style="display:none;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-        <button class="btn btn-sec btn-sm" style="width:auto;" onclick="showSupportHome()">← Back</button>
-        <span style="font-size:.85rem;font-weight:700;color:var(--wh);">FAQ</span>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <div class="card" style="padding:14px;margin-bottom:0;cursor:pointer;" onclick="this.querySelector('.faq-ans').style.display=this.querySelector('.faq-ans').style.display==='none'?'block':'none'">
-          <p style="font-size:.85rem;font-weight:700;color:var(--wh);">How do I request a pickup?</p>
-          <p class="faq-ans" style="font-size:.78rem;color:var(--mid);margin-top:8px;display:none;line-height:1.6;">Tap "Request Pickup" on the Home screen, choose your load size, then confirm. A rider will be matched to you within minutes.</p>
-        </div>
-        <div class="card" style="padding:14px;margin-bottom:0;cursor:pointer;" onclick="this.querySelector('.faq-ans').style.display=this.querySelector('.faq-ans').style.display==='none'?'block':'none'">
-          <p style="font-size:.85rem;font-weight:700;color:var(--wh);">How does MoMo payment work?</p>
-          <p class="faq-ans" style="font-size:.78rem;color:var(--mid);margin-top:8px;display:none;line-height:1.6;">After your waste is collected, you pay via MTN MoMo, Vodafone Cash, or AirtelTigo. We use Hubtel's secure API — your number is never stored.</p>
-        </div>
-        <div class="card" style="padding:14px;margin-bottom:0;cursor:pointer;" onclick="this.querySelector('.faq-ans').style.display=this.querySelector('.faq-ans').style.display==='none'?'block':'none'">
-          <p style="font-size:.85rem;font-weight:700;color:var(--wh);">What if the fare is wrong?</p>
-          <p class="faq-ans" style="font-size:.78rem;color:var(--mid);margin-top:8px;display:none;line-height:1.6;">Riders can submit a photo to request a fare adjustment. You must approve any change before payment is processed. You can also contact support.</p>
-        </div>
-        <div class="card" style="padding:14px;margin-bottom:0;cursor:pointer;" onclick="this.querySelector('.faq-ans').style.display=this.querySelector('.faq-ans').style.display==='none'?'block':'none'">
-          <p style="font-size:.85rem;font-weight:700;color:var(--wh);">How do riders earn?</p>
-          <p class="faq-ans" style="font-size:.78rem;color:var(--mid);margin-top:8px;display:none;line-height:1.6;">Riders earn 75% of every completed job. The platform takes 25%. Earnings are tracked in real time on the Rider Dashboard.</p>
-        </div>
+    <div id="sup-faq" style="display:none;">
+      <div class="row" style="margin-bottom:13px;"><button class="btn btn-sec btn-sm" style="width:auto;" onclick="showSupHome()">← Back</button><span style="font-size:.84rem;font-weight:700;">FAQ</span></div>
+      <div style="display:flex;flex-direction:column;gap:9px;">
+        <div class="card" style="padding:13px;margin-bottom:0;cursor:pointer;" onclick="this.querySelector('.fa').style.display=this.querySelector('.fa').style.display==='none'?'block':'none'"><p style="font-size:.84rem;font-weight:700;">How do I request a pickup?</p><p class="fa" style="font-size:.77rem;color:var(--mid);margin-top:7px;line-height:1.6;display:none;">Tap "Request Pickup" on the Home screen, choose your load size and payment method, then confirm. A rider will be matched within minutes.</p></div>
+        <div class="card" style="padding:13px;margin-bottom:0;cursor:pointer;" onclick="this.querySelector('.fa').style.display=this.querySelector('.fa').style.display==='none'?'block':'none'"><p style="font-size:.84rem;font-weight:700;">How do riders earn?</p><p class="fa" style="font-size:.77rem;color:var(--mid);margin-top:7px;line-height:1.6;display:none;">Riders earn 75% of every job. For cash payments, the commission is automatically deducted from the rider's WasteGo wallet. Earnings are tracked in real time.</p></div>
+        <div class="card" style="padding:13px;margin-bottom:0;cursor:pointer;" onclick="this.querySelector('.fa').style.display=this.querySelector('.fa').style.display==='none'?'block':'none'"><p style="font-size:.84rem;font-weight:700;">Is cash payment safe?</p><p class="fa" style="font-size:.77rem;color:var(--mid);margin-top:7px;line-height:1.6;display:none;">Yes. When you pay cash, the platform commission is auto-deducted from the rider's wallet balance. The rider must have sufficient wallet balance to accept cash jobs.</p></div>
       </div>
     </div>
-
     <button class="btn btn-sec" style="margin-top:13px;" onclick="closeSupport()">Close</button>
   </div>
 </div>
 
-<!-- ══════ INBOX MODAL ══════ -->
+<!-- ══ INBOX MODAL ══ -->
 <div class="mbg" id="inbox-modal">
   <div class="msh">
     <div class="shdl"></div>
-    <p class="sht">My Inbox</p>
-    <p class="sht-sub">Messages from WasteGo</p>
-    <div id="inbox-list">
-      <div class="empty-state"><span class="es-ico">📭</span>No messages yet</div>
-    </div>
+    <p class="sht">My Messages</p>
+    <div id="inbox-list"><div class="empty-state"><span class="es-ico">📭</span>No messages</div></div>
     <button class="btn btn-sec" style="margin-top:13px;" onclick="closeInbox()">Close</button>
   </div>
 </div>
 
-<!-- ══════ ADMIN MESSAGE MODAL ══════ -->
+<!-- ══ ADMIN MESSAGE MODAL ══ -->
 <div class="cmbg" id="adm-msg-modal">
   <div class="cmsh">
     <div class="shdl"></div>
     <p class="sht">Send Message</p>
-    <p class="sht-sub">Direct message to a user</p>
-    <div class="fw"><label class="fl">Recipient</label>
-      <select class="input" id="msg-to">
-        <option value="">Select user...</option>
-      </select>
-      <span class="fe" id="msg-to-e">Please select a recipient</span>
-    </div>
-    <div class="fw"><label class="fl">Message</label>
-      <textarea class="input" id="msg-body" placeholder="Write your message to the user..." style="min-height:100px;resize:vertical;"></textarea>
-      <span class="fe" id="msg-body-e">Message cannot be empty</span>
-    </div>
+    <div class="fw"><label class="fl">Recipient</label><select class="input" id="msg-to"><option value="">Select user...</option></select><span class="fe" id="msg-to-e">Select a recipient</span></div>
+    <div class="fw"><label class="fl">Message</label><textarea class="input" id="msg-body" placeholder="Write your message..."></textarea><span class="fe" id="msg-body-e">Message cannot be empty</span></div>
     <button class="btn btn-gold" onclick="sendAdminMsg()">✉ Send Message</button>
     <button class="btn btn-sec" style="margin-top:9px;" onclick="closeAdminMsg()">Cancel</button>
   </div>
 </div>
 
-<!-- ══════ USER DETAIL MODAL ══════ -->
-<div class="cmbg" id="user-detail-modal">
-  <div class="cmsh">
-    <div class="shdl"></div>
-    <p class="sht" id="ud-name">User Details</p>
-    <div class="card" style="padding:14px;margin-bottom:14px;" id="ud-info"></div>
-    <div class="gap8" style="flex-wrap:wrap;" id="ud-actions"></div>
-    <button class="btn btn-sec" style="margin-top:11px;" onclick="closeUserDetail()">Close</button>
-  </div>
-</div>
-
 <!-- INSTALL STRIP -->
-<div id="istrip">
-  <div class="ist"><h4>📲 Install WasteGo</h4><p>Add to home screen</p></div>
-  <button class="isb" onclick="installApp()">Install</button>
-  <button class="isx" onclick="document.getElementById('istrip').classList.remove('show')">✕</button>
-</div>
+<div id="istrip"><div class="ist"><h4>📲 Install WasteGo</h4><p>Add to home screen</p></div><button class="isb" onclick="installApp()">Install</button><button class="isx" onclick="document.getElementById('istrip').classList.remove('show')">✕</button></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// ════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════
+'use strict';
+// ════════════════════════════════════════════════════════
+//  DATABASE (localStorage)
+// ════════════════════════════════════════════════════════
+const DB = {
+  // CONFIG COMMISSIONS per size
+  COMMISSIONS: { Small:3.75, Medium:7.00, Large:11.25, Bulk:20.00 },
+  ADMIN_CREDS: { email:'admin@wastego.gh', password:'admin2024!' },
+
+  _get(key){ try{ return JSON.parse(localStorage.getItem('wg_'+key)||'null'); }catch(e){ return null; } },
+  _set(key,val){ try{ localStorage.setItem('wg_'+key, JSON.stringify(val)); }catch(e){} },
+
+  // USERS store
+  getUsers(){ return this._get('users') || []; },
+  saveUsers(u){ this._set('users', u); },
+  findUserByEmail(email){ return this.getUsers().find(u=>u.email.toLowerCase()===email.toLowerCase())||null; },
+  addUser(u){ const users=this.getUsers(); users.push(u); this.saveUsers(users); },
+  updateUser(email, patch){
+    const users = this.getUsers();
+    const i = users.findIndex(u=>u.email.toLowerCase()===email.toLowerCase());
+    if(i>-1){ users[i]={...users[i],...patch}; this.saveUsers(users); return users[i]; }
+    return null;
+  },
+  deleteUser(email){ const u=this.getUsers().filter(u=>u.email.toLowerCase()!==email.toLowerCase()); this.saveUsers(u); },
+
+  // TRANSACTIONS store
+  getTx(){ return this._get('transactions') || []; },
+  addTx(tx){ const t=this.getTx(); t.unshift({...tx, id:'tx'+Date.now(), ts:new Date().toISOString()}); this._set('transactions',t); return t[0]; },
+  getTxForUser(email){ return this.getTx().filter(t=>t.customerEmail===email||t.riderEmail===email); },
+
+  // MESSAGES store
+  getMsgs(){ return this._get('messages') || []; },
+  addMsg(msg){ const m=this.getMsgs(); m.unshift({...msg, id:'m'+Date.now(), ts:new Date().toISOString()}); this._set('messages',m); },
+  getMsgsForUser(email){ return this.getMsgs().filter(m=>m.toEmail.toLowerCase()===email.toLowerCase()); },
+
+  // WALLET ops
+  getWallet(email){
+    const u = this.findUserByEmail(email);
+    return u ? (u.wallet||0) : 0;
+  },
+  creditWallet(email, amount){
+    const u = this.findUserByEmail(email);
+    if(!u) return 0;
+    const newBal = parseFloat(((u.wallet||0)+amount).toFixed(2));
+    this.updateUser(email,{wallet:newBal});
+    return newBal;
+  },
+  debitWallet(email, amount){
+    const u = this.findUserByEmail(email);
+    if(!u) return null;
+    const bal = u.wallet||0;
+    if(bal < amount) return null; // insufficient
+    const newBal = parseFloat((bal-amount).toFixed(2));
+    this.updateUser(email,{wallet:newBal});
+    return newBal;
+  },
+
+  // STATS
+  getStats(){
+    const users = this.getUsers();
+    const txs = this.getTx();
+    const totalRev = txs.reduce((s,t)=>s+(t.commission||0),0);
+    return {
+      totalUsers: users.length,
+      riders: users.filter(u=>u.role==='rider').length,
+      pickups: txs.filter(t=>t.type==='pickup').length,
+      revenue: totalRev,
+    };
+  }
+};
+
+// ════════════════════════════════════════════════════════
+//  SESSION STATE
+// ════════════════════════════════════════════════════════
 const ST = {
   user: null,
   regRole: 'customer',
   size: 'Medium', base: 28, sur: 0,
+  payMethod: 'momo',
   online: false,
-  maps: {}, userLL: null,
-  riderMs: [], trackInt: null, moveInt: null,
-  users: [
-    {id:'u1',name:'Ama Owusu',email:'ama@gmail.com',phone:'+233241234567',role:'customer',banned:false,pic:null,joined:'Apr 12, 2025'},
-    {id:'u2',name:'Kwame Asante',email:'kwame@gmail.com',phone:'+233201234567',role:'rider',banned:false,pic:null,joined:'Mar 5, 2025'},
-    {id:'u3',name:'Akua Mensah',email:'akua@yahoo.com',phone:'+233261234567',role:'customer',banned:false,pic:null,joined:'May 1, 2025'},
-    {id:'u4',name:'Yaw Boateng',email:'yaw@hotmail.com',phone:'+233271234567',role:'rider',banned:true,pic:null,joined:'Feb 20, 2025'},
-    {id:'u5',name:'Abena Frimpong',email:'abena@gmail.com',phone:'+233251234567',role:'customer',banned:false,pic:null,joined:'May 3, 2025'},
-  ],
+  maps: {}, userLL: null, riderMs: [], trackInt: null, moveInt: null,
   uFilter: 'all',
-  msgs: [],      // admin sent messages
-  userInbox: [], // messages for current user
-  viewUser: null,
+  depositAmt: 0,
+  activeJob: null, // { address, size, base, sur, total, payMethod, customerEmail }
 };
 
-// ADMIN CREDENTIALS
-const ADMIN = { email: 'admin@wastego.gh', password: 'admin123' };
-const TILE = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const ACCRA = [5.6037, -0.1870];
+const TILE = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  VALIDATION
-// ════════════════════════════════════════
-const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
-const isPhone = v => /^[0-9]{9,12}$/.test(v.replace(/[\s\-\+\(\)]/g,''));
-const isEmpty = v => !v || !v.trim();
+// ════════════════════════════════════════════════════════
+const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((v||'').trim());
+const isPhone = v => /^[0-9]{9,12}$/.test((v||'').replace(/[\s\-\+\(\)]/g,''));
+const isEmpty = v => !(v||'').trim();
 
-function fErr(id, msg) {
-  const el = document.getElementById(id);
-  const inp = document.getElementById(id.replace('-e',''));
+function fErr(id, msg){
+  const inp=document.getElementById(id); const e=document.getElementById(id+'-e');
   if(inp) inp.classList.add('err');
-  if(el) { if(msg) el.textContent = msg; el.classList.add('on'); }
+  if(e){ if(msg) e.textContent=msg; e.classList.add('on'); }
 }
-function fOk(id) {
-  const el = document.getElementById(id);
-  const inp = document.getElementById(id.replace('-e',''));
+function fOk(id){
+  const inp=document.getElementById(id); const e=document.getElementById(id+'-e');
   if(inp) inp.classList.remove('err');
-  if(el) el.classList.remove('on');
+  if(e) e.classList.remove('on');
 }
-function clearErrs() {
-  document.querySelectorAll('.input.err').forEach(e => e.classList.remove('err'));
-  document.querySelectorAll('.fe.on').forEach(e => e.classList.remove('on'));
-}
+function clearErrs(){ document.querySelectorAll('.input.err').forEach(e=>e.classList.remove('err')); document.querySelectorAll('.fe.on').forEach(e=>e.classList.remove('on')); }
 
-// live clear on input
-setTimeout(() => {
-  ['l-email','l-pass','r-name','r-email','r-phone','r-pass','ep-name','ep-email','ep-phone'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('input', () => fOk(id + '-e'));
+// Live clear errors
+setTimeout(()=>{
+  ['l-email','l-pass','r-name','r-email','r-phone','r-pass','la-email','la-pass',
+   'ep-name','ep-email','ep-phone','tick-sub','tick-body','wd-amount','msg-to','msg-body'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input',()=>fOk(id+'-e'));
   });
-  // admin fields
-  ['la-email','la-pass'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('input', () => fOk(id + '-e'));
-  });
-}, 500);
+},600);
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  AUTH
-// ════════════════════════════════════════
-function aTab(t) {
-  document.querySelectorAll('.at-b').forEach((b,i) => b.classList.toggle('on', (i===0&&t==='login')||(i===1&&t==='register')));
-  document.getElementById('frm-login').style.display = t==='login' ? 'flex' : 'none';
-  document.getElementById('frm-reg').style.display = t==='register' ? 'flex' : 'none';
+// ════════════════════════════════════════════════════════
+function aTab(t){
+  document.querySelectorAll('.at-b').forEach((b,i)=>b.classList.toggle('on',(i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('frm-login').style.display=t==='login'?'flex':'none';
+  document.getElementById('frm-reg').style.display=t==='register'?'flex':'none';
   clearErrs();
 }
 
-function pickRole(el) {
-  document.querySelectorAll('.ro').forEach(o => o.classList.remove('on'));
+function pickRole(el){
+  document.querySelectorAll('.ro').forEach(o=>o.classList.remove('on'));
   el.classList.add('on');
-  ST.regRole = el.dataset.role;
-  document.getElementById('r-extra').style.display = ST.regRole==='rider' ? 'flex' : 'none';
+  ST.regRole=el.dataset.role;
+  document.getElementById('r-extra').style.display=ST.regRole==='rider'?'flex':'none';
 }
 
-function doLogin() {
+function doLogin(){
   clearErrs();
-  const email = document.getElementById('l-email').value.trim();
-  const pass = document.getElementById('l-pass').value;
-  let ok = true;
-  if (!isEmail(email)) { fErr('l-email-e'); ok = false; }
-  if (isEmpty(pass)) { fErr('l-pass-e'); ok = false; }
-  if (!ok) return;
-  const btn = document.getElementById('l-btn');
-  btn.innerHTML = '<div class="spinner"></div> Signing in...'; btn.disabled = true;
-  setTimeout(() => {
-    let acc = null;
-    try { acc = JSON.parse(localStorage.getItem('wg::' + email)); } catch(e) {}
-    if (acc && acc.banned) { btn.innerHTML = 'Sign In'; btn.disabled = false; showToast('⛔ This account has been suspended', 'red'); return; }
-    ST.user = acc || { name: 'John Mensah', email, phone: '+233241234567', role: 'customer', pic: null };
+  const email=(document.getElementById('l-email').value||'').trim();
+  const pass=document.getElementById('l-pass').value||'';
+  let ok=true;
+  if(!isEmail(email)){ fErr('l-email-e'); ok=false; }
+  if(isEmpty(pass)){ fErr('l-pass-e'); ok=false; }
+  if(!ok) return;
+
+  const btn=document.getElementById('l-btn');
+  btn.innerHTML='<div class="spinner"></div> Signing in...'; btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML='Sign In'; btn.disabled=false;
+    const user = DB.findUserByEmail(email);
+    if(!user){
+      fErr('l-email-e','No account found. Please register first.');
+      showToast('❌ Email not found — please register','red'); return;
+    }
+    if(user.password !== pass){
+      fErr('l-pass-e','Incorrect password');
+      showToast('❌ Incorrect password','red'); return;
+    }
+    if(user.banned){
+      showToast('⛔ Account suspended. Contact support.','red'); return;
+    }
+    ST.user=user;
+    DB.updateUser(email,{lastLogin:new Date().toISOString()});
     enterApp();
-  }, 1300);
+  },1100);
 }
 
-function doAdminLogin() {
+function doAdminLogin(){
   clearErrs();
-  const email = document.getElementById('la-email').value.trim();
-  const pass = document.getElementById('la-pass').value;
-  let ok = true;
-  if (!isEmail(email)) { fErr('la-email-e', 'Enter a valid admin email'); ok = false; }
-  if (isEmpty(pass)) { fErr('la-pass-e', 'Admin password is required'); ok = false; }
-  if (!ok) return;
-  if (email !== ADMIN.email || pass !== ADMIN.password) {
-    fErr('la-email-e', 'Invalid admin credentials');
-    fErr('la-pass-e', 'Check your email and password');
-    showToast('❌ Invalid admin credentials', 'red');
-    return;
+  const email=(document.getElementById('la-email').value||'').trim();
+  const pass=document.getElementById('la-pass').value||'';
+  let ok=true;
+  if(!isEmail(email)){ fErr('la-email-e'); ok=false; }
+  if(isEmpty(pass)){ fErr('la-pass-e'); ok=false; }
+  if(!ok) return;
+
+  const btn=document.getElementById('la-btn');
+  btn.innerHTML='<div class="spinner"></div>'; btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML='🔐 Admin Sign In'; btn.disabled=false;
+    if(email!==DB.ADMIN_CREDS.email || pass!==DB.ADMIN_CREDS.password){
+      fErr('la-email-e','Invalid admin credentials');
+      fErr('la-pass-e','Check email and password');
+      showToast('❌ Admin credentials incorrect','red'); return;
+    }
+    ST.user={name:'WasteGo Admin',email:DB.ADMIN_CREDS.email,phone:'+233300000000',role:'admin',pic:null};
+    enterApp();
+  },900);
+}
+
+function doRegister(){
+  clearErrs();
+  const name=(document.getElementById('r-name').value||'').trim();
+  const email=(document.getElementById('r-email').value||'').trim();
+  const phone=(document.getElementById('r-phone').value||'').trim();
+  const pass=document.getElementById('r-pass').value||'';
+  let ok=true;
+  if(name.length<2){ fErr('r-name-e'); ok=false; }
+  if(!isEmail(email)){ fErr('r-email-e'); ok=false; }
+  if(!isPhone(phone)){ fErr('r-phone-e'); ok=false; }
+  if(pass.length<6){ fErr('r-pass-e'); ok=false; }
+  if(ST.regRole==='rider'){
+    const veh=(document.getElementById('r-vehicle')?.value||'').trim();
+    const reg=document.getElementById('r-region')?.value||'';
+    if(!veh){ fErr('r-vehicle-e'); ok=false; }
+    if(!reg){ fErr('r-region-e'); ok=false; }
   }
-  const btn = document.getElementById('la-btn');
-  btn.innerHTML = '<div class="spinner"></div>'; btn.disabled = true;
-  setTimeout(() => {
-    ST.user = { name: 'WasteGo Admin', email: ADMIN.email, phone: '+233300000000', role: 'admin', pic: null };
-    enterApp();
-  }, 1000);
-}
+  if(!ok) return;
 
-function doRegister() {
-  clearErrs();
-  const name = document.getElementById('r-name').value.trim();
-  const email = document.getElementById('r-email').value.trim();
-  const phone = document.getElementById('r-phone').value.trim();
-  const pass = document.getElementById('r-pass').value;
-  let ok = true;
-  if (name.length < 2) { fErr('r-name-e'); ok = false; }
-  if (!isEmail(email)) { fErr('r-email-e'); ok = false; }
-  if (!isPhone(phone)) { fErr('r-phone-e'); ok = false; }
-  if (pass.length < 6) { fErr('r-pass-e'); ok = false; }
-  if (ST.regRole === 'rider') {
-    const veh = document.getElementById('r-vehicle')?.value.trim();
-    const reg = document.getElementById('r-region')?.value;
-    if (!veh) { fErr('r-vehicle-e'); ok = false; }
-    if (!reg) { fErr('r-region-e'); ok = false; }
+  if(DB.findUserByEmail(email)){
+    fErr('r-email-e','Email already registered — please sign in');
+    showToast('Email already exists','red'); return;
   }
-  if (!ok) return;
-  const btn = document.getElementById('r-btn');
-  btn.innerHTML = '<div class="spinner"></div> Creating...'; btn.disabled = true;
-  setTimeout(() => {
-    ST.user = { name, email, phone, role: ST.regRole, pic: null };
-    try { localStorage.setItem('wg::' + email, JSON.stringify(ST.user)); } catch(e) {}
-    // Add to admin users list
-    ST.users.push({ id: 'u' + Date.now(), name, email, phone, role: ST.regRole, banned: false, pic: null, joined: new Date().toLocaleDateString('en-GB',{month:'short',day:'numeric',year:'numeric'}) });
+
+  const btn=document.getElementById('r-btn');
+  btn.innerHTML='<div class="spinner"></div> Creating...'; btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML='Create Account'; btn.disabled=false;
+    const newUser={
+      id:'u'+Date.now(), name, email, phone, password:pass,
+      role:ST.regRole, banned:false, pic:null,
+      wallet:0, // rider wallet starts at 0
+      vehicle: ST.regRole==='rider'?(document.getElementById('r-vehicle')?.value||''):'',
+      region: ST.regRole==='rider'?(document.getElementById('r-region')?.value||''):'',
+      joined:new Date().toLocaleDateString('en-GB',{month:'short',day:'numeric',year:'numeric'}),
+      lastLogin:new Date().toISOString(),
+    };
+    DB.addUser(newUser);
+    ST.user=newUser;
+    showToast('✅ Account created successfully!','green');
     enterApp();
-  }, 1500);
+  },1400);
 }
 
-function enterApp() {
-  const a = document.getElementById('auth');
+function enterApp(){
+  const a=document.getElementById('auth');
   a.classList.add('out');
-  setTimeout(() => a.style.display = 'none', 400);
+  setTimeout(()=>a.style.display='none',380);
   buildNav();
-  updateProfile();
+  updateProfileUI();
   setGreet();
-  setTimeout(() => {
-    if (ST.user.role === 'customer') initMap('cmap', true);
-    else if (ST.user.role === 'rider') initRiderMap();
-  }, 300);
-  setTimeout(showInstall, 8000);
+  setTimeout(()=>{
+    if(ST.user.role==='customer') initMap('cmap',true);
+    else if(ST.user.role==='rider'){ initRiderMap(); updateRiderUI(); }
+    else if(ST.user.role==='admin') refreshAdminOverview();
+  },300);
+  setTimeout(showInstall,10000);
 }
 
-function logout() { ST.user = null; clearAllInt(); location.reload(); }
+function logout(){ ST.user=null; clearAllInt(); location.reload(); }
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  NAVIGATION
-// ════════════════════════════════════════
-const NAVS = {
-  customer: [
-    { ico:'🏠', lbl:'Home', scr:'s-home' },
-    { ico:'📋', lbl:'History', scr:'s-history' },
-    { ico:'👤', lbl:'Profile', scr:'s-profile' },
-  ],
-  rider: [
-    { ico:'🛺', lbl:'Dashboard', scr:'s-rider', r:'rider' },
-    { ico:'💵', lbl:'Earnings', scr:'s-earn', r:'rider' },
-    { ico:'👤', lbl:'Profile', scr:'s-profile', r:'rider' },
-  ],
-  admin: [
-    { ico:'⚙️', lbl:'Admin', scr:'s-admin', r:'admin' },
-    { ico:'👤', lbl:'Profile', scr:'s-profile', r:'admin' },
-  ],
+// ════════════════════════════════════════════════════════
+const NAVS={
+  customer:[{ico:'🏠',lbl:'Home',scr:'s-home'},{ico:'📋',lbl:'History',scr:'s-history'},{ico:'👤',lbl:'Profile',scr:'s-profile'}],
+  rider:[{ico:'🛺',lbl:'Dashboard',scr:'s-rider',r:'rider'},{ico:'💵',lbl:'Earnings',scr:'s-earn',r:'rider'},{ico:'👤',lbl:'Profile',scr:'s-profile',r:'rider'}],
+  admin:[{ico:'⚙️',lbl:'Admin',scr:'s-admin',r:'admin'},{ico:'👤',lbl:'Profile',scr:'s-profile',r:'admin'}],
 };
 
-function buildNav() {
-  const tabs = NAVS[ST.user.role] || NAVS.customer;
-  const bn = document.getElementById('botnav'); bn.innerHTML = '';
-  tabs.forEach((t, i) => {
-    const b = document.createElement('button');
-    b.className = 'ntab' + (i===0?' on':'');
-    if(t.r) b.dataset.r = t.r;
-    b.innerHTML = `<span class="ni">${t.ico}</span><span class="nl">${t.lbl}</span>`;
-    b.onclick = () => goTab(t.scr, b);
+function buildNav(){
+  const tabs=NAVS[ST.user.role]||NAVS.customer;
+  const bn=document.getElementById('botnav'); bn.innerHTML='';
+  tabs.forEach((t,i)=>{
+    const b=document.createElement('button'); b.className='ntab'+(i===0?' on':'');
+    if(t.r) b.dataset.r=t.r;
+    b.innerHTML=`<span class="ni">${t.ico}</span><span class="nl">${t.lbl}</span>`;
+    b.onclick=()=>goTab(t.scr,b);
     bn.appendChild(b);
-    if(i===0) goTab(t.scr, b, true);
+    if(i===0) goTab(t.scr,b,true);
   });
-  const rb = document.getElementById('rbadge');
-  rb.textContent = ST.user.role.charAt(0).toUpperCase() + ST.user.role.slice(1);
-  rb.className = 'rbadge ' + ST.user.role;
+  const rb=document.getElementById('rbadge');
+  rb.textContent=ST.user.role.charAt(0).toUpperCase()+ST.user.role.slice(1);
+  rb.className='rbadge '+ST.user.role;
 }
 
-function goTab(sid, btn, silent=false) {
-  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
-  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('on'));
+function goTab(sid,btn,silent=false){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
   document.getElementById(sid)?.classList.add('on');
   if(btn) btn.classList.add('on');
-  if(!silent) {
+  if(!silent){
     if(sid==='s-track') initTrackMap();
-    if(sid==='s-rider') initRiderMap();
+    if(sid==='s-rider'){ initRiderMap(); updateRiderUI(); }
+    if(sid==='s-earn') renderEarnTx();
+    if(sid==='s-history') renderCustomerHistory();
+    if(sid==='s-admin') refreshAdminOverview();
   }
 }
 
-function goToProfile() { goTab('s-profile', document.querySelectorAll('.ntab')[document.querySelectorAll('.ntab').length-1]); }
+function goToProfile(){ goTab('s-profile', document.querySelectorAll('.ntab')[document.querySelectorAll('.ntab').length-1]); }
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  MAPS
-// ════════════════════════════════════════
-function mkMap(id, c, z) {
+// ════════════════════════════════════════════════════════
+function mkMap(id,c,z){
   if(ST.maps[id]) return ST.maps[id];
-  const m = L.map(id, { zoomControl:true, attributionControl:false, scrollWheelZoom:false });
-  L.tileLayer(TILE, { maxZoom:18 }).addTo(m);
-  m.setView(c||ACCRA, z||14);
-  ST.maps[id] = m;
-  return m;
+  const m=L.map(id,{zoomControl:true,attributionControl:false,scrollWheelZoom:false});
+  L.tileLayer(TILE,{maxZoom:18}).addTo(m);
+  m.setView(c||ACCRA,z||14);
+  ST.maps[id]=m; return m;
 }
-function rIco() { return L.divIcon({ className:'', html:`<div style="width:26px;height:26px;background:#00C853;border-radius:50%;border:2px solid #080C08;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 8px rgba(0,200,83,.5);">🛺</div>`, iconSize:[26,26], iconAnchor:[13,13] }); }
-function uIco() { return L.divIcon({ className:'', html:`<div style="width:20px;height:20px;background:#4488FF;border-radius:50%;border:2.5px solid #080C08;box-shadow:0 0 10px rgba(68,136,255,.6);"></div>`, iconSize:[20,20], iconAnchor:[10,10] }); }
+function rIco(){ return L.divIcon({className:'',html:`<div style="width:26px;height:26px;background:#00C853;border-radius:50%;border:2px solid #07090A;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 8px rgba(0,200,83,.5);">🛺</div>`,iconSize:[26,26],iconAnchor:[13,13]}); }
+function uIco(){ return L.divIcon({className:'',html:`<div style="width:20px;height:20px;background:#3D8BFF;border-radius:50%;border:2.5px solid #07090A;box-shadow:0 0 10px rgba(61,139,255,.6);"></div>`,iconSize:[20,20],iconAnchor:[10,10]}); }
 
-function spawnRiders(map, c) {
-  ST.riderMs.forEach(m => m.remove()); ST.riderMs = [];
-  for(let i=0;i<4;i++) {
-    const m = L.marker([c[0]+(Math.random()-.5)*.025, c[1]+(Math.random()-.5)*.025], {icon:rIco()}).addTo(map);
-    m.bindPopup(`🛺 Rider ${i+1} · Online`);
-    ST.riderMs.push(m);
+function spawnRiders(map,c){
+  ST.riderMs.forEach(m=>m.remove()); ST.riderMs=[];
+  // Only show riders that are actually registered and online in DB (simplified: just 2-4 random)
+  for(let i=0;i<3+Math.floor(Math.random()*2);i++){
+    const m=L.marker([c[0]+(Math.random()-.5)*.025,c[1]+(Math.random()-.5)*.025],{icon:rIco()}).addTo(map);
+    m.bindPopup(`🛺 Rider nearby`); ST.riderMs.push(m);
   }
   clearInterval(ST.moveInt);
-  ST.moveInt = setInterval(() => {
-    ST.riderMs.forEach(rm => {
-      const ll = rm.getLatLng();
-      rm.setLatLng([ll.lat+(Math.random()-.5)*.0006, ll.lng+(Math.random()-.5)*.0006]);
-    });
-  }, 2000);
+  ST.moveInt=setInterval(()=>{ ST.riderMs.forEach(rm=>{ const ll=rm.getLatLng(); rm.setLatLng([ll.lat+(Math.random()-.5)*.0006,ll.lng+(Math.random()-.5)*.0006]); }); },2000);
 }
 
-function initMap(id, geo) {
+function initMap(id,geo){
   if(ST.maps[id]) return;
-  const c = ST.userLL || ACCRA;
-  const m = mkMap(id, c, 14);
-  L.circle(c, {radius:180, color:'#00C853', fillColor:'#00C853', fillOpacity:.07, weight:1}).addTo(m);
-  spawnRiders(m, c);
-  if(geo && navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
-      const ll = [pos.coords.latitude, pos.coords.longitude];
-      ST.userLL = ll;
-      m.setView(ll, 15);
+  const c=ST.userLL||ACCRA;
+  const m=mkMap(id,c,14);
+  L.circle(c,{radius:180,color:'#00C853',fillColor:'#00C853',fillOpacity:.07,weight:1}).addTo(m);
+  spawnRiders(m,c);
+  if(geo&&navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      const ll=[pos.coords.latitude,pos.coords.longitude]; ST.userLL=ll;
+      m.setView(ll,15);
       if(ST.uMark) ST.uMark.remove();
-      ST.uMark = L.marker(ll, {icon:uIco()}).addTo(m).bindPopup('📍 Your location');
-      spawnRiders(m, ll);
+      ST.uMark=L.marker(ll,{icon:uIco()}).addTo(m).bindPopup('📍 You');
+      spawnRiders(m,ll);
       document.getElementById('cmap-dot').classList.remove('y');
-      document.getElementById('cmap-txt').textContent = 'Location found';
-      document.getElementById('cmap-sub').textContent = `${ll[0].toFixed(4)}, ${ll[1].toFixed(4)}`;
-      document.getElementById('pickup-addr').value = 'Your current location';
-    }, () => {
-      document.getElementById('cmap-dot').classList.add('y');
-      document.getElementById('cmap-txt').textContent = 'Using Accra (GPS denied)';
-    });
+      document.getElementById('cmap-txt').textContent='Location found';
+      document.getElementById('cmap-sub').textContent=`${ll[0].toFixed(4)}, ${ll[1].toFixed(4)}`;
+      document.getElementById('pickup-addr').value='Your current location';
+    },()=>{ document.getElementById('cmap-dot').classList.add('y'); document.getElementById('cmap-txt').textContent='Using Accra (GPS denied)'; });
   }
 }
 
-function initTrackMap() {
+function initTrackMap(){
   if(ST.maps['tmap']) return;
-  const c = ST.userLL || ACCRA;
-  const m = mkMap('tmap', c, 15);
-  L.marker(c, {icon:uIco()}).addTo(m).bindPopup('📍 Pickup point');
-  let rLat=c[0]+0.009, rLng=c[1]+0.007;
-  const rm = L.marker([rLat,rLng], {icon:rIco()}).addTo(m).bindPopup('🛺 Kwame en route');
+  const c=ST.userLL||ACCRA;
+  const m=mkMap('tmap',c,15);
+  L.marker(c,{icon:uIco()}).addTo(m).bindPopup('📍 Pickup point');
+  const rm=L.marker([c[0]+0.009,c[1]+0.007],{icon:rIco()}).addTo(m).bindPopup('🛺 Rider en route');
   clearInterval(ST.trackInt);
-  ST.trackInt = setInterval(() => {
-    const ll = rm.getLatLng();
-    rm.setLatLng([ll.lat+(c[0]-ll.lat)*.09+(Math.random()-.5)*.0002, ll.lng+(c[1]-ll.lng)*.09+(Math.random()-.5)*.0002]);
-  }, 1500);
+  ST.trackInt=setInterval(()=>{ const ll=rm.getLatLng(); rm.setLatLng([ll.lat+(c[0]-ll.lat)*.09+(Math.random()-.5)*.0002,ll.lng+(c[1]-ll.lng)*.09+(Math.random()-.5)*.0002]); },1500);
 }
 
-function initRiderMap() {
+function initRiderMap(){
   if(ST.maps['rmap']) return;
-  const c = ST.userLL || ACCRA;
-  const m = mkMap('rmap', c, 14);
-  L.marker(c, {icon:rIco()}).addTo(m).bindPopup('📍 Your position');
-  spawnRiders(m, c);
+  const c=ST.userLL||ACCRA;
+  const m=mkMap('rmap',c,14);
+  L.marker(c,{icon:rIco()}).addTo(m).bindPopup('📍 Your position');
+  spawnRiders(m,c);
 }
 
-function clearAllInt() { clearInterval(ST.trackInt); clearInterval(ST.moveInt); }
+function clearAllInt(){ clearInterval(ST.trackInt); clearInterval(ST.moveInt); }
 
-// ════════════════════════════════════════
-//  PRICING
-// ════════════════════════════════════════
-function pickSz(el, name, price) {
-  document.querySelectorAll('.sz').forEach(s => s.classList.remove('on'));
+// ════════════════════════════════════════════════════════
+//  PRICING + PAYMENT METHOD
+// ════════════════════════════════════════════════════════
+function pickSz(el,name,price){
+  document.querySelectorAll('.sz').forEach(s=>s.classList.remove('on'));
   el.classList.add('on'); ST.size=name; ST.base=price; calcP();
 }
-function pickSur(v) { ST.sur = parseInt(v)||0; calcP(); }
-function calcP() {
-  const tot = ST.base + 7.20 + ST.sur;
-  document.getElementById('p-base').textContent = `GH₵ ${ST.base}.00`;
-  document.getElementById('p-sur').textContent = `GH₵ ${ST.sur}.00`;
-  document.getElementById('p-tot').textContent = `GH₵ ${tot.toFixed(2)}`;
+function pickSur(v){ ST.sur=parseInt(v)||0; calcP(); }
+function calcP(){
+  const tot=ST.base+7.20+ST.sur;
+  document.getElementById('p-base').textContent=`GH₵ ${ST.base}.00`;
+  document.getElementById('p-sur').textContent=`GH₵ ${ST.sur}.00`;
+  document.getElementById('p-tot').textContent=`GH₵ ${tot.toFixed(2)}`;
 }
 
-// ════════════════════════════════════════
-//  PICKUP FLOW
-// ════════════════════════════════════════
-function reqPickup() {
-  goTab('s-track', document.querySelectorAll('.ntab')[0]);
-  document.querySelectorAll('.ntab').forEach(t => t.classList.remove('on'));
-  document.getElementById('tsub').textContent = 'Finding nearest rider...';
-  document.getElementById('tlbl').textContent = 'Searching...';
+function selectPayMethod(m){
+  ST.payMethod=m;
+  document.getElementById('pay-opt-momo').className='pay-opt'+(m==='momo'?' on-momo':'');
+  document.getElementById('pay-opt-cash').className='pay-opt'+(m==='cash'?' on-cash':'');
+}
+
+// ════════════════════════════════════════════════════════
+//  CUSTOMER PICKUP FLOW
+// ════════════════════════════════════════════════════════
+function reqPickup(){
+  const addr=document.getElementById('pickup-addr').value||'Your location';
+  const total=ST.base+7.20+ST.sur;
+
+  // Store current job
+  ST.activeJob={
+    address:addr, size:ST.size, base:ST.base, sur:ST.sur, total,
+    payMethod:ST.payMethod, customerEmail:ST.user.email,
+    customerName:ST.user.name, ts:new Date().toISOString(),
+  };
+
+  // Switch to tracking
+  const tabs=document.querySelectorAll('.ntab');
+  goTab('s-track',tabs[0]); tabs.forEach(t=>t.classList.remove('on'));
+  document.getElementById('tsub').textContent='Finding nearest rider...';
+  document.getElementById('tlbl').textContent='Searching...';
+  document.getElementById('payment-action-wrap').innerHTML='';
   initTrackMap();
-  setTimeout(() => {
-    document.getElementById('tlbl').textContent = 'Rider matched!';
-    document.getElementById('tsub').textContent = 'Kwame Asante is on the way';
-    document.getElementById('teta').textContent = '~4 min';
-    setTimeout(() => document.getElementById('fnotice').classList.remove('hidden'), 7000);
-  }, 2200);
-}
-function cancelPickup() { clearAllInt(); goTab('s-home', document.querySelectorAll('.ntab')[0]); document.getElementById('fnotice').classList.add('hidden'); }
-function approveFare() { document.getElementById('fnotice').classList.add('hidden'); showToast('✓ Fare approved — GH₵ 52.00', 'green'); }
-function declineFare() { document.getElementById('fnotice').classList.add('hidden'); }
 
-// ════════════════════════════════════════
-//  PAYMENT
-// ════════════════════════════════════════
-function openPay() { document.getElementById('pay-modal').classList.add('show'); }
-function closePay() { document.getElementById('pay-modal').classList.remove('show'); }
-function selM(el) { document.querySelectorAll('.mo').forEach(o => o.classList.remove('sel')); el.classList.add('sel'); }
-function doPay() {
-  const btn = document.getElementById('paybtn');
-  btn.innerHTML = '<div class="spinner"></div> Processing...'; btn.disabled = true;
-  setTimeout(() => {
-    closePay(); btn.innerHTML = 'Confirm Payment'; btn.disabled = false; clearAllInt();
-    showToast('✅ Payment of GH₵ 35.20 successful!', 'green');
-    goTab('s-history', document.querySelectorAll('.ntab')[1]);
-  }, 2200);
+  setTimeout(()=>{
+    document.getElementById('tlbl').textContent='Rider matched!';
+    document.getElementById('tsub').textContent='Rider is on the way';
+    document.getElementById('teta').textContent='~4 min';
+
+    // Show appropriate payment button
+    const wrap=document.getElementById('payment-action-wrap');
+    if(ST.payMethod==='momo'){
+      wrap.innerHTML=`<button class="btn btn-g" style="margin-bottom:9px;" onclick="openMomoPay()">💳 Pay GH₵${total.toFixed(2)} with MoMo</button>`;
+    } else {
+      wrap.innerHTML=`<button class="btn btn-orange" style="margin-bottom:9px;" onclick="openCashConfirm()">💵 Confirm Cash Payment</button>`;
+    }
+    setTimeout(()=>document.getElementById('fnotice').classList.remove('hidden'),8000);
+  },2200);
 }
 
-// ════════════════════════════════════════
-//  RIDER
-// ════════════════════════════════════════
-function toggleOnline() {
-  ST.online = !ST.online;
-  document.getElementById('tog').classList.toggle('on', ST.online);
-  document.getElementById('obar').classList.toggle('on', ST.online);
-  document.getElementById('otxt').textContent = ST.online ? 'You are Online' : 'You are Offline';
-  document.getElementById('rmap-sub').textContent = ST.online ? 'Accepting nearby jobs' : 'Go online to receive jobs';
-  document.getElementById('rmap-txt').textContent = ST.online ? 'Online · Receiving jobs' : 'Your location';
-  if(ST.online) setTimeout(() => document.getElementById('jalert').classList.remove('hidden'), 3500);
-  else document.getElementById('jalert').classList.add('hidden');
+function cancelPickup(){
+  clearAllInt(); ST.activeJob=null;
+  goTab('s-home',document.querySelectorAll('.ntab')[0]);
+  document.getElementById('fnotice').classList.add('hidden');
+  document.getElementById('payment-action-wrap').innerHTML='';
 }
-function acceptJob() { document.getElementById('jalert').classList.add('hidden'); document.getElementById('ajcard').classList.remove('hidden'); }
-function declineJob() { document.getElementById('jalert').classList.add('hidden'); }
-function openFare() { document.getElementById('fare-modal').classList.add('show'); }
-function closeFare() { document.getElementById('fare-modal').classList.remove('show'); }
-function fakeUp() { document.getElementById('uzi').textContent='✅'; document.getElementById('uzt').textContent='Photo uploaded!'; }
-function submitFare() {
-  closeFare();
-  document.getElementById('uzi').textContent='📷'; document.getElementById('uzt').textContent='Tap to upload photo';
-  showToast('📸 Adjustment request sent to customer', 'green');
-}
-function completeJob() { document.getElementById('ajcard').classList.add('hidden'); showToast('✅ Job complete! +GH₵26.40 earned', 'green'); }
+function approveFare(){ document.getElementById('fnotice').classList.add('hidden'); showToast('✓ Fare approved — GH₵ 52.00 confirmed','green'); }
+function declineFare(){ document.getElementById('fnotice').classList.add('hidden'); }
 
-// ════════════════════════════════════════
-//  ADMIN — TABS
-// ════════════════════════════════════════
-function admTab(id, btn) {
-  document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('.adm-pane').forEach(p => p.classList.remove('on'));
-  btn.classList.add('on');
-  document.getElementById('ap-' + id).classList.add('on');
-  if(id === 'users') renderUsers();
+// ════════════════════════════════════════════════════════
+//  MOMO PAYMENT
+// ════════════════════════════════════════════════════════
+function openMomoPay(){
+  const tot=(ST.activeJob?.total||35.20).toFixed(2);
+  document.getElementById('pm-total').textContent=`GH₵ ${tot}`;
+  document.getElementById('pm-momo-num').textContent=ST.user.phone||'—';
+  document.getElementById('pay-modal').classList.add('show');
+}
+function openPay(){ openMomoPay(); } // alias
+function closePay(){ document.getElementById('pay-modal').classList.remove('show'); }
+function selM(el){ document.querySelectorAll('.mo').forEach(o=>o.classList.remove('sel')); el.classList.add('sel'); }
+
+function doPay(){
+  const btn=document.getElementById('paybtn');
+  btn.innerHTML='<div class="spinner"></div> Processing...'; btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML='Confirm Payment'; btn.disabled=false;
+    closePay();
+    finishPickup('momo');
+  },2200);
 }
 
-// ════════════════════════════════════════
-//  ADMIN — USER MANAGEMENT
-// ════════════════════════════════════════
-function setUFilter(f, btn) {
-  document.querySelectorAll('.uf-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  ST.uFilter = f;
-  renderUsers();
+// ════════════════════════════════════════════════════════
+//  CASH PAYMENT
+// ════════════════════════════════════════════════════════
+function openCashConfirm(){
+  if(!ST.activeJob) return;
+  const {total, size} = ST.activeJob;
+  const commission = DB.COMMISSIONS[size] || 7.00;
+  const riderShare = parseFloat((total - commission).toFixed(2));
+  document.getElementById('cc-amount').textContent=`GH₵ ${total.toFixed(2)}`;
+  document.getElementById('cc-size').textContent=`${size} Load`;
+  document.getElementById('cc-rider').textContent=`GH₵ ${riderShare.toFixed(2)}`;
+  document.getElementById('cc-comm').textContent=`GH₵ ${commission.toFixed(2)}`;
+  document.getElementById('cash-modal').classList.add('show');
 }
+function closeCash(){ document.getElementById('cash-modal').classList.remove('show'); }
 
-function renderUsers() {
-  const q = (document.getElementById('user-search')?.value||'').toLowerCase();
-  const list = document.getElementById('user-list');
-  let users = ST.users.filter(u => {
-    if(ST.uFilter === 'customer') return u.role==='customer';
-    if(ST.uFilter === 'rider') return u.role==='rider';
-    if(ST.uFilter === 'banned') return u.banned;
-    return true;
-  }).filter(u => !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-
-  if(!users.length) {
-    list.innerHTML = `<div class="empty-state"><span class="es-ico">🔍</span>No users found</div>`;
-    return;
+function confirmCash(){
+  // Deduct commission from matched rider's wallet (simulated: find a rider)
+  const riders=DB.getUsers().filter(u=>u.role==='rider'&&!u.banned);
+  if(riders.length>0){
+    const riderUser=riders[0]; // in real app: matched rider
+    const commission=DB.COMMISSIONS[ST.activeJob?.size||'Medium']||7.00;
+    const newBal=DB.debitWallet(riderUser.email, commission);
+    if(newBal===null){
+      // Rider has insufficient funds — still allow but log it
+      showToast(`⚠ Rider wallet low — commission pending`,'orange');
+    }
+    ST.activeJob.riderEmail=riderUser.email;
+    ST.activeJob.riderName=riderUser.name;
   }
-  list.innerHTML = users.map(u => `
-    <div class="ucard ${u.banned?'banned':''}" id="uc-${u.id}">
-      <div class="u-top">
-        <div class="u-ava ${u.role==='rider'?'r':'c'}">${u.pic ? `<img src="${u.pic}" alt="">` : (u.role==='rider'?'🛺':'🏠')}</div>
-        <div style="flex:1;">
-          <p class="u-name">${u.name} ${u.banned ? '<span class="badge br" style="font-size:.55rem;">Banned</span>' : ''}</p>
-          <p class="u-email">${u.email}</p>
-          <span class="u-role-badge ${u.role==='rider'?'bb':'bg'}" style="font-size:.58rem;">${u.role}</span>
-        </div>
-        <span style="font-size:.7rem;color:var(--mid);">${u.joined}</span>
+  closeCash();
+  finishPickup('cash');
+}
+
+function finishPickup(method){
+  if(!ST.activeJob) return;
+  const {total, size, address, customerEmail, riderEmail, riderName} = ST.activeJob;
+  const commission=DB.COMMISSIONS[size]||7.00;
+  const riderShare=parseFloat((total-commission).toFixed(2));
+
+  // Save transaction
+  DB.addTx({
+    type:'pickup', size, total, commission, riderShare, method,
+    address, customerEmail, customerName:ST.user.name,
+    riderEmail:riderEmail||'unassigned', riderName:riderName||'Kwame A.',
+    status:'completed',
+  });
+
+  clearAllInt(); ST.activeJob=null;
+  showToast(method==='momo'?`✅ MoMo payment of GH₵${total.toFixed(2)} confirmed!`:`✅ Cash payment confirmed! Commission deducted from rider.`,'green');
+  renderCustomerHistory();
+  refreshAdminOverview();
+  goTab('s-history',document.querySelectorAll('.ntab')[1]);
+}
+
+// ════════════════════════════════════════════════════════
+//  CUSTOMER HISTORY
+// ════════════════════════════════════════════════════════
+function renderCustomerHistory(){
+  if(!ST.user) return;
+  const txs=DB.getTxForUser(ST.user.email).filter(t=>t.type==='pickup'&&t.customerEmail===ST.user.email);
+  const list=document.getElementById('history-list');
+  if(!txs.length){ list.innerHTML='<div class="empty-state"><span class="es-ico">📭</span>No pickups yet</div>'; return; }
+  list.innerHTML=txs.map(t=>`
+    <div class="hi">
+      <div class="hiico">${t.method==='cash'?'💵':'📱'}</div>
+      <div style="flex:1;">
+        <p class="hit">${t.address||'Pickup'}</p>
+        <p class="him">${t.size} · ${t.method==='cash'?'Cash':'MoMo'} · ${t.riderName||'Rider'} · ${fmtDate(t.ts)}</p>
       </div>
-      <div class="u-actions">
-        <button class="u-btn u-msg" onclick="openAdminMsgTo('${u.id}')">✉ Message</button>
-        ${u.banned
-          ? `<button class="u-btn u-unban" onclick="unbanUser('${u.id}')">✓ Unban</button>`
-          : `<button class="u-btn u-ban" onclick="banUser('${u.id}')">⛔ Ban</button>`}
-        <button class="u-btn u-del" onclick="deleteUser('${u.id}')">🗑 Delete</button>
-        <button class="u-btn" style="background:var(--card2);color:var(--mid);border:1px solid var(--bd);" onclick="viewUser('${u.id}')">👁 View</button>
+      <div style="text-align:right;">
+        <p class="hia">GH₵${(t.total||0).toFixed(2)}</p>
+        <span class="badge bg" style="font-size:.57rem;">Done</span>
       </div>
     </div>
   `).join('');
 }
 
-function banUser(id) {
-  const u = ST.users.find(x => x.id===id);
-  if(!u) return;
-  if(!confirm(`Ban ${u.name}? They will not be able to log in.`)) return;
-  u.banned = true;
-  try { const stored = JSON.parse(localStorage.getItem('wg::'+u.email)||'null'); if(stored){ stored.banned=true; localStorage.setItem('wg::'+u.email,JSON.stringify(stored)); }} catch(e){}
-  renderUsers();
-  showToast(`⛔ ${u.name} has been banned`, 'red');
+// ════════════════════════════════════════════════════════
+//  RIDER FLOW
+// ════════════════════════════════════════════════════════
+function toggleOnline(){
+  ST.online=!ST.online;
+  document.getElementById('tog').classList.toggle('on',ST.online);
+  document.getElementById('obar').classList.toggle('on',ST.online);
+  document.getElementById('otxt').textContent=ST.online?'You are Online':'You are Offline';
+  document.getElementById('rmap-sub').textContent=ST.online?'Accepting nearby jobs':'Go online to receive jobs';
+  document.getElementById('rmap-txt').textContent=ST.online?'Online · Receiving jobs':'Your location';
+  if(ST.online){
+    setTimeout(simulateIncomingJob, 3500);
+  } else {
+    document.getElementById('jalert').classList.add('hidden');
+  }
 }
 
-function unbanUser(id) {
-  const u = ST.users.find(x => x.id===id);
-  if(!u) return;
-  u.banned = false;
-  try { const stored = JSON.parse(localStorage.getItem('wg::'+u.email)||'null'); if(stored){ stored.banned=false; localStorage.setItem('wg::'+u.email,JSON.stringify(stored)); }} catch(e){}
-  renderUsers();
-  showToast(`✓ ${u.name} has been unbanned`, 'green');
+function simulateIncomingJob(){
+  if(!ST.online) return;
+  // Pick a random pending pickup or simulate
+  const sizes=['Small','Medium','Large','Bulk'];
+  const methods=['momo','cash'];
+  const sz=sizes[Math.floor(Math.random()*sizes.length)];
+  const bases={Small:15,Medium:28,Large:45,Bulk:80};
+  const base=bases[sz]; const commission=DB.COMMISSIONS[sz];
+  const total=base+7.20; const share=parseFloat((total-commission).toFixed(2));
+  const method=methods[Math.floor(Math.random()*2)];
+
+  ST.activeJob={
+    address:'123 Accra Road, East Legon',
+    size:sz, base, sur:0, total, commission, riderShare:share,
+    payMethod:method, customerEmail:'demo@customer.gh', customerName:'Customer',
+  };
+
+  document.getElementById('ja-addr').textContent=`📍 ${ST.activeJob.address}`;
+  document.getElementById('ja-meta').textContent=`${sz} Load · 2.4 km away`;
+  document.getElementById('ja-price').innerHTML=`GH₵ ${total.toFixed(2)} <span class="jashare">(your share: GH₵${share.toFixed(2)})</span>`;
+  document.getElementById('ja-paymethod').textContent=`Payment: ${method==='cash'?'💵 Cash — commission will be deducted from your wallet':'📱 MoMo'}`;
+  document.getElementById('jalert').classList.remove('hidden');
 }
 
-function deleteUser(id) {
-  const u = ST.users.find(x => x.id===id);
-  if(!u) return;
-  if(!confirm(`Permanently delete ${u.name}? This cannot be undone.`)) return;
-  ST.users = ST.users.filter(x => x.id!==id);
-  try { localStorage.removeItem('wg::'+u.email); } catch(e){}
-  renderUsers();
-  showToast(`🗑 ${u.name} deleted`, 'red');
+function acceptJob(){
+  document.getElementById('jalert').classList.add('hidden');
+  const j=ST.activeJob;
+  document.getElementById('ajcard').classList.remove('hidden');
+  document.getElementById('aj-addr').textContent=`📍 ${j?.address||'Customer location'}`;
+  document.getElementById('aj-detail').textContent=`${j?.size||'Medium'} Load · GH₵${(j?.total||35).toFixed(2)}`;
+  const pm=j?.payMethod==='cash';
+  document.getElementById('aj-paymethod').innerHTML=pm?`<span style="color:var(--orange);">💵 Cash — GH₵${(j?.commission||7).toFixed(2)} commission will be deducted from your wallet on completion</span>`:`<span style="color:var(--g);">📱 MoMo payment</span>`;
 }
 
-function viewUser(id) {
-  const u = ST.users.find(x => x.id===id);
-  if(!u) return;
-  ST.viewUser = u;
-  document.getElementById('ud-name').textContent = u.name;
-  document.getElementById('ud-info').innerHTML = `
-    <div class="ud-row"><span>Email</span><span>${u.email}</span></div>
-    <div class="ud-row"><span>Phone</span><span>${u.phone||'—'}</span></div>
-    <div class="ud-row"><span>Role</span><span>${u.role}</span></div>
-    <div class="ud-row"><span>Status</span><span>${u.banned ? '<span class="badge br">Banned</span>' : '<span class="badge bg">Active</span>'}</span></div>
-    <div class="ud-row"><span>Joined</span><span>${u.joined}</span></div>
-  `;
-  document.getElementById('ud-actions').innerHTML = `
-    <button class="btn btn-blue btn-sm" onclick="closeUserDetail();openAdminMsgTo('${u.id}')">✉ Message</button>
-    ${u.banned
-      ? `<button class="btn btn-g btn-sm" onclick="unbanUser('${u.id}');closeUserDetail()">✓ Unban</button>`
-      : `<button class="btn btn-gold btn-sm" onclick="banUser('${u.id}');closeUserDetail()">⛔ Ban</button>`}
-    <button class="btn btn-red btn-sm" onclick="deleteUser('${u.id}');closeUserDetail()">🗑 Delete</button>
-  `;
-  document.getElementById('user-detail-modal').classList.add('show');
+function declineJob(){ document.getElementById('jalert').classList.add('hidden'); ST.activeJob=null; }
+
+function completeJob(){
+  const j=ST.activeJob;
+  if(!j) return;
+  document.getElementById('ajcard').classList.add('hidden');
+  const isCash=j.payMethod==='cash';
+  const commission=j.commission||DB.COMMISSIONS[j.size||'Medium'];
+  const share=j.riderShare||parseFloat((j.total-commission).toFixed(2));
+
+  if(isCash){
+    // Deduct commission from rider wallet
+    const newBal=DB.debitWallet(ST.user.email, commission);
+    if(newBal===null){
+      // Insufficient — credit negative balance note
+      DB.updateUser(ST.user.email,{wallet:0});
+      showToast(`⚠ Wallet low — GH₵${commission.toFixed(2)} commission pending`,'orange');
+    } else {
+      showToast(`✅ Job complete! Commission GH₵${commission.toFixed(2)} deducted`,'green');
+    }
+  } else {
+    // MoMo — simulate crediting rider share
+    DB.creditWallet(ST.user.email, share);
+    showToast(`✅ Job complete! GH₵${share.toFixed(2)} credited to wallet`,'green');
+  }
+
+  // Log transaction
+  DB.addTx({
+    type:'pickup', size:j.size, total:j.total, commission, riderShare:share,
+    method:j.payMethod, address:j.address,
+    customerEmail:j.customerEmail, customerName:j.customerName,
+    riderEmail:ST.user.email, riderName:ST.user.name, status:'completed',
+  });
+
+  ST.activeJob=null;
+  updateRiderUI();
+  refreshAdminOverview();
 }
 
-function closeUserDetail() { document.getElementById('user-detail-modal').classList.remove('show'); }
+function updateRiderUI(){
+  if(!ST.user) return;
+  const freshUser=DB.findUserByEmail(ST.user.email);
+  if(freshUser) ST.user={...ST.user,...freshUser};
+  const bal=(ST.user.wallet||0).toFixed(2);
+  document.getElementById('wallet-bal').textContent=`GH₵ ${bal}`;
+  document.getElementById('wallet-bal2').textContent=`GH₵ ${bal}`;
+  // Earnings from transactions
+  const myTx=DB.getTx().filter(t=>t.riderEmail===ST.user.email&&t.type==='pickup');
+  const today=new Date().toDateString();
+  const todayEarn=myTx.filter(t=>new Date(t.ts).toDateString()===today).reduce((s,t)=>s+(t.riderShare||0),0);
+  const weekEarn=myTx.reduce((s,t)=>s+(t.riderShare||0),0);
+  document.getElementById('earn-today').textContent=`GH₵${todayEarn.toFixed(0)}`;
+  document.getElementById('earn-week').textContent=`GH₵${weekEarn.toFixed(0)}`;
+  document.getElementById('earn-jobs').textContent=myTx.length;
+  renderRiderTx();
+}
 
-// ════════════════════════════════════════
-//  ADMIN — MESSAGING
-// ════════════════════════════════════════
-function populateMsgTo(preId) {
-  const sel = document.getElementById('msg-to');
-  sel.innerHTML = '<option value="">Select user...</option>';
-  ST.users.filter(u => !u.banned).forEach(u => {
-    const o = document.createElement('option');
-    o.value = u.id;
-    o.textContent = `${u.name} (${u.role})`;
-    if(u.id === preId) o.selected = true;
+function renderRiderTx(){
+  const myTx=DB.getTx().filter(t=>t.riderEmail===ST.user.email).slice(0,20);
+  const el=document.getElementById('rider-tx-list');
+  if(!myTx.length){ el.innerHTML='<div class="empty-state" style="padding:18px;"><span class="es-ico" style="font-size:1.5rem;">📋</span>No transactions yet</div>'; return; }
+  el.innerHTML=myTx.map(t=>`
+    <div class="hi">
+      <div class="hiico" style="${t.type==='deposit'?'background:rgba(0,200,83,.1);':'background:rgba(61,139,255,.08);border-color:rgba(61,139,255,.1);'}">${t.type==='deposit'?'↓':t.type==='withdraw'?'↑':'🛺'}</div>
+      <div style="flex:1;">
+        <p class="hit">${t.type==='deposit'?'Wallet Deposit':t.type==='withdraw'?'Withdrawal':`Pickup — ${t.size||''}`}</p>
+        <p class="him">${fmtDate(t.ts)} · ${t.method==='cash'?'Cash':'MoMo'}</p>
+      </div>
+      <div style="text-align:right;">
+        <p style="font-weight:800;font-size:.85rem;color:${t.type==='withdraw'||t.type==='commission'?'var(--red)':'var(--g)'};">${t.type==='withdraw'?'-':''}GH₵${(t.riderShare||t.amount||0).toFixed(2)}</p>
+        ${t.type==='pickup'&&t.method==='cash'?`<p style="font-size:.61rem;color:var(--orange);">-GH₵${(t.commission||0).toFixed(2)} commission</p>`:''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderEarnTx(){
+  if(!ST.user) return;
+  const myTx=DB.getTx().filter(t=>t.riderEmail===ST.user.email).slice(0,50);
+  const el=document.getElementById('earn-tx-list');
+  if(!myTx.length){ el.innerHTML='<div class="empty-state"><span class="es-ico">📭</span>No transactions yet</div>'; return; }
+  el.innerHTML=myTx.map(t=>`
+    <div class="hi">
+      <div class="hiico" style="background:rgba(61,139,255,.08);border-color:rgba(61,139,255,.1);">${t.type==='deposit'?'↓':t.type==='withdraw'?'↑':'🛺'}</div>
+      <div style="flex:1;">
+        <p class="hit">${t.type==='deposit'?'Deposit':t.type==='withdraw'?'Withdrawal':`${t.size||''} Load Pickup`}</p>
+        <p class="him">${t.address||''} · ${fmtDate(t.ts)}</p>
+        ${t.method==='cash'?`<p style="font-size:.62rem;color:var(--orange);">Cash · Commission: GH₵${(t.commission||0).toFixed(2)} deducted</p>`:''}
+      </div>
+      <p style="font-weight:800;font-size:.86rem;white-space:nowrap;color:${t.type==='withdraw'?'var(--red)':'var(--g)'};">${t.type==='withdraw'?'-':''}GH₵${(t.riderShare||t.amount||0).toFixed(2)}</p>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════════════════
+//  RIDER WALLET
+// ════════════════════════════════════════════════════════
+let _depositAmt=0;
+function openDeposit(){
+  _depositAmt=0;
+  document.querySelectorAll('.da').forEach(d=>d.classList.remove('on'));
+  document.getElementById('custom-deposit').value='';
+  document.getElementById('deposit-modal').classList.add('show');
+}
+function closeDeposit(){ document.getElementById('deposit-modal').classList.remove('show'); }
+function pickDeposit(el,amt){ document.querySelectorAll('.da').forEach(d=>d.classList.remove('on')); el.classList.add('on'); _depositAmt=amt; document.getElementById('custom-deposit').value=amt; }
+function focusCustom(){ document.getElementById('custom-deposit').focus(); }
+
+function doDeposit(){
+  const custom=parseFloat(document.getElementById('custom-deposit').value)||0;
+  const amt=custom>0?custom:_depositAmt;
+  if(amt<5){ showToast('Minimum deposit is GH₵5','red'); return; }
+  const btn=document.getElementById('deposit-btn');
+  btn.innerHTML='<div class="spinner"></div> Processing...'; btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML='Deposit Now'; btn.disabled=false;
+    const newBal=DB.creditWallet(ST.user.email,amt);
+    ST.user.wallet=newBal;
+    DB.addTx({type:'deposit',amount:amt,riderShare:amt,method:'momo',riderEmail:ST.user.email,riderName:ST.user.name,status:'completed'});
+    closeDeposit();
+    updateRiderUI();
+    showToast(`✅ GH₵${amt.toFixed(2)} deposited to wallet`,'green');
+  },1500);
+}
+
+function openWithdraw(){
+  const bal=DB.getWallet(ST.user.email);
+  document.getElementById('wd-available').textContent=`GH₵ ${bal.toFixed(2)}`;
+  document.getElementById('wd-amount').value='';
+  clearErrs();
+  document.getElementById('withdraw-modal').classList.add('show');
+}
+function closeWithdraw(){ document.getElementById('withdraw-modal').classList.remove('show'); }
+
+function doWithdraw(){
+  const amt=parseFloat(document.getElementById('wd-amount').value)||0;
+  const bal=DB.getWallet(ST.user.email);
+  clearErrs();
+  if(amt<5){ fErr('wd-amount-e','Minimum withdrawal is GH₵5'); return; }
+  if(amt>bal){ fErr('wd-amount-e',`Insufficient balance (GH₵${bal.toFixed(2)})`); return; }
+  const newBal=DB.debitWallet(ST.user.email,amt);
+  if(newBal===null){ fErr('wd-amount-e','Insufficient balance'); return; }
+  ST.user.wallet=newBal;
+  DB.addTx({type:'withdraw',amount:amt,riderShare:-amt,method:'momo',riderEmail:ST.user.email,riderName:ST.user.name,status:'completed'});
+  closeWithdraw();
+  updateRiderUI();
+  showToast(`✅ GH₵${amt.toFixed(2)} withdrawn to MoMo`,'green');
+}
+
+// ════════════════════════════════════════════════════════
+//  FARE ADJUSTMENT
+// ════════════════════════════════════════════════════════
+function openFare(){ document.getElementById('fare-modal').classList.add('show'); }
+function closeFare(){ document.getElementById('fare-modal').classList.remove('show'); }
+function fakeUp(){ document.getElementById('uzi').textContent='✅'; document.getElementById('uzt').textContent='Photo uploaded!'; }
+function submitFare(){
+  closeFare(); document.getElementById('uzi').textContent='📷'; document.getElementById('uzt').textContent='Tap to upload photo';
+  showToast('📸 Adjustment request sent to customer','green');
+}
+
+// ════════════════════════════════════════════════════════
+//  ADMIN
+// ════════════════════════════════════════════════════════
+function admTab(id,btn){
+  document.querySelectorAll('.adm-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.adm-pane').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on'); document.getElementById('ap-'+id).classList.add('on');
+  if(id==='users') renderUsers();
+  if(id==='messages') renderAdminMsgs();
+  if(id==='overview') refreshAdminOverview();
+}
+
+function refreshAdminOverview(){
+  const s=DB.getStats();
+  document.getElementById('stat-users').textContent=s.totalUsers;
+  document.getElementById('stat-riders').textContent=s.riders;
+  document.getElementById('stat-pickups').textContent=s.pickups;
+  document.getElementById('stat-rev').textContent=`GH₵${s.revenue.toFixed(0)}`;
+  // Recent transactions
+  const txs=DB.getTx().filter(t=>t.type==='pickup').slice(0,10);
+  const el=document.getElementById('adm-tx-list');
+  if(!txs.length){ el.innerHTML='<div class="empty-state"><span class="es-ico">📭</span>No transactions yet</div>'; return; }
+  el.innerHTML=`<table class="ttbl"><thead><tr><th>Customer</th><th>Rider</th><th>Size</th><th>Fare</th><th>Method</th></tr></thead><tbody>`+
+  txs.map(t=>`<tr><td>${t.customerName||'—'}</td><td>${t.riderName||'—'}</td><td>${t.size||'—'}</td><td>GH₵${(t.total||0).toFixed(0)}</td><td>${t.method==='cash'?'<span class="badge bo">Cash</span>':'<span class="badge bg">MoMo</span>'}</td></tr>`).join('')+
+  `</tbody></table>`;
+}
+
+// User Filter
+function setUF(f,btn){ document.querySelectorAll('.uf-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); ST.uFilter=f; renderUsers(); }
+
+function renderUsers(){
+  const q=(document.getElementById('user-search')?.value||'').toLowerCase();
+  let users=DB.getUsers().filter(u=>{
+    if(ST.uFilter==='customer') return u.role==='customer';
+    if(ST.uFilter==='rider') return u.role==='rider';
+    if(ST.uFilter==='banned') return u.banned;
+    return true;
+  }).filter(u=>!q||u.name.toLowerCase().includes(q)||u.email.toLowerCase().includes(q));
+  const list=document.getElementById('user-list');
+  if(!users.length){ list.innerHTML=`<div class="empty-state"><span class="es-ico">🔍</span>No users found</div>`; return; }
+  list.innerHTML=users.map(u=>`
+    <div class="ucard ${u.banned?'banned':''}" id="uc-${u.id}">
+      <div class="u-top">
+        <div class="u-ava" style="background:${u.role==='rider'?'rgba(61,139,255,.12)':'var(--gdim)'};">${u.pic?`<img src="${u.pic}">`:(u.role==='rider'?'🛺':'🏠')}</div>
+        <div style="flex:1;">
+          <p class="u-name">${u.name} ${u.banned?'<span class="badge br" style="font-size:.54rem;">Banned</span>':''}</p>
+          <p class="u-email">${u.email} · ${u.phone||''}</p>
+          <span class="badge ${u.role==='rider'?'bb':'bg'}" style="font-size:.57rem;margin-top:3px;">${u.role}</span>
+          ${u.role==='rider'?`<span style="font-size:.67rem;color:var(--g);margin-left:8px;">Wallet: GH₵${(u.wallet||0).toFixed(2)}</span>`:''}
+        </div>
+        <span style="font-size:.67rem;color:var(--mid);">${u.joined||''}</span>
+      </div>
+      <div class="u-actions">
+        <button class="u-btn u-msg" onclick="openAdminMsg('${u.id}')">✉ Message</button>
+        ${u.banned?`<button class="u-btn u-unban" onclick="unbanUser('${u.id}')">✓ Unban</button>`:`<button class="u-btn u-ban" onclick="banUser('${u.id}')">⛔ Ban</button>`}
+        <button class="u-btn u-del" onclick="deleteUser('${u.id}')">🗑 Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function banUser(uid){
+  const users=DB.getUsers(); const u=users.find(x=>x.id===uid); if(!u) return;
+  if(!confirm(`Ban ${u.name}? They will not be able to sign in.`)) return;
+  DB.updateUser(u.email,{banned:true}); renderUsers(); refreshAdminOverview();
+  showToast(`⛔ ${u.name} banned`,'red');
+}
+function unbanUser(uid){
+  const users=DB.getUsers(); const u=users.find(x=>x.id===uid); if(!u) return;
+  DB.updateUser(u.email,{banned:false}); renderUsers();
+  showToast(`✓ ${u.name} unbanned`,'green');
+}
+function deleteUser(uid){
+  const users=DB.getUsers(); const u=users.find(x=>x.id===uid); if(!u) return;
+  if(!confirm(`Permanently delete ${u.name}? Cannot be undone.`)) return;
+  DB.deleteUser(u.email); renderUsers(); refreshAdminOverview();
+  showToast(`🗑 ${u.name} deleted`,'red');
+}
+
+// Admin messaging
+function openAdminMsg(uid){
+  const users=DB.getUsers();
+  const sel=document.getElementById('msg-to');
+  sel.innerHTML='<option value="">Select user...</option>';
+  users.filter(u=>!u.banned).forEach(u=>{
+    const o=document.createElement('option'); o.value=u.id; o.textContent=`${u.name} (${u.role})`;
+    if(uid&&u.id===uid) o.selected=true;
     sel.appendChild(o);
   });
-}
-
-function openAdminMsg() {
-  populateMsgTo(null);
-  document.getElementById('msg-body').value = '';
-  clearErrs();
+  document.getElementById('msg-body').value=''; clearErrs();
   document.getElementById('adm-msg-modal').classList.add('show');
 }
+function closeAdminMsg(){ document.getElementById('adm-msg-modal').classList.remove('show'); }
 
-function openAdminMsgTo(uid) {
-  populateMsgTo(uid);
-  document.getElementById('msg-body').value = '';
+function sendAdminMsg(){
   clearErrs();
-  document.getElementById('adm-msg-modal').classList.add('show');
-}
-
-function closeAdminMsg() { document.getElementById('adm-msg-modal').classList.remove('show'); }
-
-function sendAdminMsg() {
-  clearErrs();
-  const toId = document.getElementById('msg-to').value;
-  const body = document.getElementById('msg-body').value.trim();
-  let ok = true;
-  if(!toId) { fErr('msg-to-e', 'Please select a recipient'); ok=false; }
-  if(!body) { fErr('msg-body-e', 'Message cannot be empty'); ok=false; }
+  const toId=document.getElementById('msg-to').value;
+  const body=(document.getElementById('msg-body').value||'').trim();
+  let ok=true;
+  if(!toId){ fErr('msg-to-e'); ok=false; }
+  if(!body){ fErr('msg-body-e'); ok=false; }
   if(!ok) return;
-  const u = ST.users.find(x => x.id===toId);
-  const now = new Date().toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'});
-  const msg = { to: u.name, toId, body, time: now };
-  ST.msgs.push(msg);
-  // Add to user inbox (simulated)
-  if(ST.user && (ST.user.email === u.email || toId === 'u1')) {
-    ST.userInbox.push({ from:'WasteGo Admin', body, time: now });
-    document.getElementById('msg-count-badge').style.display='inline-flex';
-  }
-  closeAdminMsg();
-  renderAdminMsgs();
-  showToast(`✉ Message sent to ${u.name}`, 'green');
+  const u=DB.getUsers().find(x=>x.id===toId); if(!u) return;
+  DB.addMsg({toEmail:u.email,toName:u.name,fromName:'WasteGo Admin',body,read:false});
+  closeAdminMsg(); renderAdminMsgs();
+  showToast(`✉ Message sent to ${u.name}`,'green');
 }
 
-function renderAdminMsgs() {
-  const log = document.getElementById('adm-msg-log');
-  if(!ST.msgs.length) {
-    log.innerHTML = `<div class="empty-state"><span class="es-ico">📭</span>No messages sent yet</div>`;
-    return;
-  }
-  log.innerHTML = `<div class="adm-msg-list">${ST.msgs.slice().reverse().map(m => `
-    <div class="adm-msg-item">
-      <div class="adm-msg-header">
-        <span class="adm-msg-to">To: ${m.to}</span>
-        <span class="adm-msg-time">${m.time}</span>
-      </div>
-      <p class="adm-msg-body">${m.body}</p>
-    </div>
-  `).join('')}</div>`;
+function renderAdminMsgs(){
+  const msgs=DB.getMsgs();
+  const el=document.getElementById('adm-msg-log');
+  if(!msgs.length){ el.innerHTML='<div class="empty-state"><span class="es-ico">📭</span>No messages sent yet</div>'; return; }
+  el.innerHTML=msgs.map(m=>`<div class="adm-msg-item"><div class="adm-msg-header"><span class="adm-msg-to">To: ${m.toName}</span><span class="adm-msg-time">${fmtDate(m.ts)}</span></div><p class="adm-msg-body">${m.body}</p></div>`).join('');
 }
 
-// ════════════════════════════════════════
-//  ADMIN — CONFIG
-// ════════════════════════════════════════
-function saveCfg() {
-  showToast(`✅ Config saved & live immediately`, 'green');
+function saveCfg(){
+  DB.COMMISSIONS.Small=parseFloat(document.getElementById('cfg-small').value)||3.75;
+  DB.COMMISSIONS.Medium=parseFloat(document.getElementById('cfg-medium').value)||7.00;
+  DB.COMMISSIONS.Large=parseFloat(document.getElementById('cfg-large').value)||11.25;
+  DB.COMMISSIONS.Bulk=parseFloat(document.getElementById('cfg-bulk').value)||20.00;
+  showToast('✅ Config saved — commissions updated','green');
 }
 
-// ════════════════════════════════════════
-//  PROFILE EDITING
-// ════════════════════════════════════════
-function openEditProfile() {
+// ════════════════════════════════════════════════════════
+//  PROFILE
+// ════════════════════════════════════════════════════════
+function updateProfileUI(){
   if(!ST.user) return;
-  document.getElementById('ep-name').value = ST.user.name || '';
-  document.getElementById('ep-email').value = ST.user.email || '';
-  document.getElementById('ep-phone').value = ST.user.phone || '';
-  document.getElementById('ep-momo').value = ST.user.phone || '';
-  // Sync profile pic preview
-  const prev = document.getElementById('edit-pic-preview');
-  if(ST.user.pic) {
-    prev.innerHTML = `<img src="${ST.user.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-  } else {
-    prev.textContent = ST.user.role==='customer' ? '🏠' : ST.user.role==='rider' ? '🛺' : '⚙️';
-  }
-  clearErrs();
-  document.getElementById('edit-profile-modal').classList.add('show');
+  const u=ST.user;
+  document.getElementById('pname').textContent=u.name;
+  document.getElementById('pemail').textContent=u.email;
+  document.getElementById('pphone').textContent=u.phone||'';
+  document.getElementById('pmomo').textContent=u.phone||'—';
+  const rl=document.getElementById('prole'); rl.textContent=u.role.charAt(0).toUpperCase()+u.role.slice(1); rl.className='prole '+u.role;
+  const pic=document.getElementById('prof-pic'); const topAva=document.getElementById('topava');
+  if(u.pic){ pic.innerHTML=`<img src="${u.pic}">`; topAva.innerHTML=`<img src="${u.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`; }
+  else{ const ico=u.role==='customer'?'🏠':u.role==='rider'?'🛺':'⚙️'; pic.textContent=ico; topAva.textContent=ico; }
 }
 
-function closeEditProfile() { document.getElementById('edit-profile-modal').classList.remove('show'); }
-
-function handlePicUpload(e) {
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    const src = ev.target.result;
-    ST.user.pic = src;
-    // Update edit preview
-    document.getElementById('edit-pic-preview').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    // Update profile pic display
-    document.getElementById('prof-pic').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    // Update top avatar
-    document.getElementById('topava').innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    showToast('📷 Photo updated', 'green');
+function handlePicUpload(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const src=ev.target.result;
+    ST.user.pic=src;
+    DB.updateUser(ST.user.email,{pic:src});
+    document.getElementById('prof-pic').innerHTML=`<img src="${src}">`;
+    document.getElementById('ep-pic').innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    document.getElementById('topava').innerHTML=`<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    showToast('📷 Profile photo updated','green');
   };
   reader.readAsDataURL(file);
 }
 
-function saveProfile() {
+function openEditProfile(){
+  if(!ST.user) return;
+  document.getElementById('ep-name').value=ST.user.name||'';
+  document.getElementById('ep-email').value=ST.user.email||'';
+  document.getElementById('ep-phone').value=ST.user.phone||'';
+  const ep=document.getElementById('ep-pic');
+  ep.innerHTML=ST.user.pic?`<img src="${ST.user.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`:(ST.user.role==='customer'?'🏠':ST.user.role==='rider'?'🛺':'⚙️');
   clearErrs();
-  const name = document.getElementById('ep-name').value.trim();
-  const email = document.getElementById('ep-email').value.trim();
-  const phone = document.getElementById('ep-phone').value.trim();
-  let ok = true;
-  if(name.length < 2) { fErr('ep-name-e', 'Name is required'); ok=false; }
-  if(!isEmail(email)) { fErr('ep-email-e', 'Enter a valid email'); ok=false; }
-  if(phone && !isPhone(phone)) { fErr('ep-phone-e', 'Enter a valid phone number'); ok=false; }
+  document.getElementById('edit-profile-modal').classList.add('show');
+}
+function closeEditProfile(){ document.getElementById('edit-profile-modal').classList.remove('show'); }
+
+function saveProfile(){
+  clearErrs();
+  const name=(document.getElementById('ep-name').value||'').trim();
+  const email=(document.getElementById('ep-email').value||'').trim();
+  const phone=(document.getElementById('ep-phone').value||'').trim();
+  let ok=true;
+  if(name.length<2){ fErr('ep-name-e'); ok=false; }
+  if(!isEmail(email)){ fErr('ep-email-e'); ok=false; }
+  if(phone&&!isPhone(phone)){ fErr('ep-phone-e'); ok=false; }
   if(!ok) return;
-  const btn = document.getElementById('ep-save-btn');
-  btn.innerHTML = '<div class="spinner"></div> Saving...'; btn.disabled=true;
-  setTimeout(() => {
-    ST.user.name = name;
-    ST.user.email = email;
-    ST.user.phone = phone;
-    try { localStorage.setItem('wg::' + email, JSON.stringify(ST.user)); } catch(e) {}
-    updateProfile();
-    closeEditProfile();
-    btn.innerHTML = 'Save Changes'; btn.disabled=false;
-    showToast('✅ Profile updated successfully', 'green');
-  }, 900);
+  const btn=document.getElementById('ep-save-btn');
+  btn.innerHTML='<div class="spinner"></div>'; btn.disabled=true;
+  setTimeout(()=>{
+    btn.innerHTML='Save Changes'; btn.disabled=false;
+    DB.updateUser(ST.user.email,{name,phone});
+    if(email!==ST.user.email){ /* email change requires re-auth in production */ }
+    ST.user.name=name; ST.user.phone=phone;
+    updateProfileUI(); closeEditProfile();
+    showToast('✅ Profile updated','green');
+  },800);
 }
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  SUPPORT
-// ════════════════════════════════════════
-function openSupport() {
-  showSupportHome();
-  document.getElementById('support-modal').classList.add('show');
-}
-function closeSupport() { document.getElementById('support-modal').classList.remove('show'); }
-function showSupportHome() {
-  document.getElementById('support-home').style.display='block';
-  document.getElementById('support-chat').style.display='none';
-  document.getElementById('support-ticket').style.display='none';
-  document.getElementById('support-faq').style.display='none';
-}
-function openSupportChat() {
-  document.getElementById('support-home').style.display='none';
-  document.getElementById('support-chat').style.display='block';
-}
-function openSupportTicket() {
-  document.getElementById('support-home').style.display='none';
-  document.getElementById('support-ticket').style.display='block';
-}
-function openFAQ() {
-  document.getElementById('support-home').style.display='none';
-  document.getElementById('support-faq').style.display='block';
+// ════════════════════════════════════════════════════════
+function openSupport(){ showSupHome(); document.getElementById('support-modal').classList.add('show'); }
+function closeSupport(){ document.getElementById('support-modal').classList.remove('show'); }
+function showSupHome(){ ['sup-home','sup-chat','sup-ticket','sup-faq'].forEach((id,i)=>document.getElementById(id).style.display=i===0?'block':'none'); }
+function openSupportChat(){ document.getElementById('sup-home').style.display='none'; document.getElementById('sup-chat').style.display='block'; }
+function openTicket(){ document.getElementById('sup-home').style.display='none'; document.getElementById('sup-ticket').style.display='block'; }
+function openFAQ(){ document.getElementById('sup-home').style.display='none'; document.getElementById('sup-faq').style.display='block'; }
+
+function sendSupMsg(){
+  const ta=document.getElementById('sup-msg'); const msg=(ta.value||'').trim(); if(!msg) return;
+  const thread=document.getElementById('sup-thread');
+  const now=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  thread.innerHTML+=`<div style="align-self:flex-end;"><div class="msg-b sent">${msg}</div><p class="msg-meta" style="text-align:right;">${now}</p></div>`;
+  ta.value=''; thread.scrollTop=thread.scrollHeight;
+  setTimeout(()=>{
+    const replies=['Thanks for reaching out! Our team will assist you shortly.','I understand your concern. Let me look into this for you.','That has been noted — we will resolve this within 24 hours.'];
+    const r=replies[Math.floor(Math.random()*replies.length)];
+    thread.innerHTML+=`<div style="align-self:flex-start;"><div class="msg-b recv">${r}</div><p class="msg-meta">Support · ${now}</p></div>`;
+    thread.scrollTop=thread.scrollHeight;
+  },1400);
 }
 
-function sendSupportMsg() {
-  const ta = document.getElementById('sup-msg');
-  const msg = ta.value.trim();
-  if(!msg) return;
-  const thread = document.getElementById('support-thread');
-  const now = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  thread.innerHTML += `<div style="align-self:flex-end;"><div class="msg-b sent">${msg}</div><p class="msg-meta" style="text-align:right;">${now}</p></div>`;
-  ta.value = '';
-  thread.scrollTop = thread.scrollHeight;
-  setTimeout(() => {
-    const replies = ['Thanks for reaching out! Our team will assist you shortly.','I understand your concern. Let me look into this for you.','Could you provide more details so I can help better?','That has been noted. We will resolve this within 24 hours.'];
-    const r = replies[Math.floor(Math.random()*replies.length)];
-    thread.innerHTML += `<div style="align-self:flex-start;"><div class="msg-b recv">${r}</div><p class="msg-meta">Support · ${now}</p></div>`;
-    thread.scrollTop = thread.scrollHeight;
-  }, 1500);
-}
-
-function submitTicket() {
+function submitTicket(){
   clearErrs();
-  const sub = document.getElementById('ticket-subject').value;
-  const body = document.getElementById('ticket-body').value.trim();
-  let ok = true;
-  if(!sub) { fErr('ticket-subject-e','Please select a subject'); ok=false; }
-  if(!body || body.length < 10) { fErr('ticket-body-e','Please describe your issue (min 10 characters)'); ok=false; }
+  const sub=document.getElementById('tick-sub').value;
+  const body=(document.getElementById('tick-body').value||'').trim();
+  let ok=true;
+  if(!sub){ fErr('tick-sub-e'); ok=false; }
+  if(body.length<10){ fErr('tick-body-e'); ok=false; }
   if(!ok) return;
   closeSupport();
-  showToast('✅ Ticket submitted! We will respond within 24 hours', 'green');
-  document.getElementById('ticket-subject').value='';
-  document.getElementById('ticket-body').value='';
+  showToast('✅ Ticket submitted! Response within 24 hours','green');
+  document.getElementById('tick-sub').value=''; document.getElementById('tick-body').value='';
 }
 
-// ════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 //  INBOX
-// ════════════════════════════════════════
-function openInbox() {
-  document.getElementById('msg-count-badge').style.display='none';
-  const list = document.getElementById('inbox-list');
-  if(!ST.userInbox.length) {
-    list.innerHTML = `<div class="empty-state"><span class="es-ico">📭</span>No messages yet</div>`;
-  } else {
-    list.innerHTML = ST.userInbox.slice().reverse().map(m => `
-      <div class="adm-msg-item" style="margin-bottom:10px;">
-        <div class="adm-msg-header"><span class="adm-msg-to" style="color:var(--g);">From: ${m.from}</span><span class="adm-msg-time">${m.time}</span></div>
-        <p class="adm-msg-body">${m.body}</p>
-      </div>
-    `).join('');
-  }
+// ════════════════════════════════════════════════════════
+function openInbox(){
+  document.getElementById('inbox-dot').style.display='none';
+  const msgs=DB.getMsgsForUser(ST.user.email);
+  const el=document.getElementById('inbox-list');
+  if(!msgs.length){ el.innerHTML='<div class="empty-state"><span class="es-ico">📭</span>No messages</div>'; }
+  else el.innerHTML=msgs.map(m=>`<div class="adm-msg-item"><div class="adm-msg-header"><span class="adm-msg-to" style="color:var(--g);">From: ${m.fromName}</span><span class="adm-msg-time">${fmtDate(m.ts)}</span></div><p class="adm-msg-body">${m.body}</p></div>`).join('');
   document.getElementById('inbox-modal').classList.add('show');
+  msgs.forEach(m=>{ if(!m.read){ DB.getMsgs(); /* mark read logic */ } });
 }
-function closeInbox() { document.getElementById('inbox-modal').classList.remove('show'); }
+function closeInbox(){ document.getElementById('inbox-modal').classList.remove('show'); }
 
-// ════════════════════════════════════════
-//  PROFILE UPDATE
-// ════════════════════════════════════════
-function updateProfile() {
-  if(!ST.user) return;
-  document.getElementById('pname').textContent = ST.user.name;
-  document.getElementById('pemail').textContent = ST.user.email;
-  document.getElementById('pphone').textContent = ST.user.phone || '';
-  document.getElementById('pmomo').textContent = ST.user.phone || '+233 24 000 1234';
-  const r = ST.user.role, rc = r==='admin'?'a':r.charAt(0);
-  const rl = document.getElementById('prole');
-  rl.textContent = r.charAt(0).toUpperCase()+r.slice(1);
-  rl.className = 'prole ' + rc;
-  const pic = document.getElementById('prof-pic');
-  const topAva = document.getElementById('topava');
-  if(ST.user.pic) {
-    pic.innerHTML = `<img src="${ST.user.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-    topAva.innerHTML = `<img src="${ST.user.pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-  } else {
-    const ico = r==='customer'?'🏠':r==='rider'?'🛺':'⚙️';
-    pic.textContent = ico;
-    topAva.textContent = ico.charAt(0);
-  }
+// ════════════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════════════
+function fmtDate(iso){
+  if(!iso) return '';
+  try{ return new Date(iso).toLocaleDateString('en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); } catch(e){ return ''; }
 }
 
-function setGreet() {
-  const h = new Date().getHours();
-  const g = h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-  const n = ST.user?.name?.split(' ')[0]||'';
-  if(document.getElementById('cgreet')) document.getElementById('cgreet').textContent = g+' 👋';
-  if(document.getElementById('rgreet')) document.getElementById('rgreet').textContent = `${g}, ${n} 👋`;
-}
-
-// ════════════════════════════════════════
-//  INSTALL + OFFLINE + TOAST
-// ════════════════════════════════════════
-function showInstall() { document.getElementById('istrip').classList.add('show'); }
-function installApp() {
-  document.getElementById('istrip').classList.remove('show');
-  alert('📲 Install WasteGo:\n\niOS: Share → "Add to Home Screen"\nAndroid: Menu (⋮) → "Add to Home Screen"');
+function setGreet(){
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const n=ST.user?.name?.split(' ')[0]||'';
+  if(document.getElementById('cgreet')) document.getElementById('cgreet').textContent=g+' 👋';
+  if(document.getElementById('rgreet')) document.getElementById('rgreet').textContent=`${g}, ${n} 👋`;
 }
 
 let toastTimer;
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'show' + (type ? ' '+type : '');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.className = '', 3200);
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show'+(type?' '+type:'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.className='',3500);
 }
 
-window.addEventListener('offline', () => document.getElementById('offline').classList.remove('hidden'));
-window.addEventListener('online', () => document.getElementById('offline').classList.add('hidden'));
+function showInstall(){ document.getElementById('istrip').classList.add('show'); }
+function installApp(){ document.getElementById('istrip').classList.remove('show'); alert('📲 To install:\n\niOS: Safari → Share → "Add to Home Screen"\nAndroid: Chrome → Menu (⋮) → "Add to Home Screen"'); }
 
-// Close modals on backdrop tap
-['pay-modal','edit-profile-modal','support-modal','inbox-modal'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('click', e => { if(e.target===e.currentTarget) el.classList.remove('show'); });
+// Offline
+window.addEventListener('offline',()=>document.getElementById('offline').classList.remove('hidden'));
+window.addEventListener('online',()=>document.getElementById('offline').classList.add('hidden'));
+
+// Backdrop close
+['pay-modal','edit-profile-modal','support-modal','inbox-modal','adm-msg-modal'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('click',e=>{ if(e.target===e.currentTarget) el.classList.remove('show'); });
 });
-['fare-modal','adm-msg-modal','user-detail-modal'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('click', e => { if(e.target===e.currentTarget) el.classList.remove('show'); });
+['cash-modal','fare-modal','deposit-modal','withdraw-modal'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.addEventListener('click',e=>{ if(e.target===e.currentTarget) el.classList.remove('show'); });
 });
 
 // Enter key in support chat
-document.addEventListener('DOMContentLoaded', () => {
-  const sup = document.getElementById('sup-msg');
-  if(sup) sup.addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendSupportMsg(); }});
+document.addEventListener('DOMContentLoaded',()=>{
+  const s=document.getElementById('sup-msg');
+  if(s) s.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendSupMsg(); } });
 });
 </script>
 </body>
